@@ -300,6 +300,10 @@ header .acct{margin-right:auto}
         </div>
       </div>
       <div class="opt">
+        <div><b>Zarı otomatik at</b><small>Sıra sana gelince zar kendiliğinden atılır; katlama hakkın varsa önce seni bekler</small></div>
+        <button class="sw" role="switch" id="swAutoRoll" aria-checked="false" aria-label="Zarı otomatik at"><i></i></button>
+      </div>
+      <div class="opt">
         <div><b>Ses efektleri</b><small>Zar, pul ve garsonun getirdiği bardak sesleri</small></div>
         <button class="sw" role="switch" id="swFx" aria-checked="true" aria-label="Ses efektleri"><i></i></button>
       </div>
@@ -920,16 +924,30 @@ function saveSnd(){try{localStorage.setItem('tavla-sound',JSON.stringify(snd));}
 document.addEventListener('visibilitychange',()=>{if(!A.ctx)return;if(document.hidden)A.ctx.suspend().catch(()=>{});else A.ctx.resume().catch(()=>{});});
 function renderSettings(){
   $('swFx').setAttribute('aria-checked',snd.fx);
+  $('swAutoRoll').setAttribute('aria-checked',!!snd.autoRoll);
   $('levelRow').hidden=S.mode!=='ai';
   document.querySelectorAll('[data-level]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===cfg.level));
   $('levelHint').textContent={acemi:'Temel kuralları bilir, arada hata yapar',kalfa:'Kapı yapar, pul kırar, açık bırakmaktan kaçınır',usta:'Her hamlede senin atabileceğin 21 zarı ve en iyi cevabını hesaplar'}[cfg.level];
 }
 $('gearBtn').onclick=()=>{$('setSheet').hidden=false;renderSettings();$('setClose').focus();};
-const closeSet=()=>{$('setSheet').hidden=true;$('gearBtn').focus();};
+const closeSet=()=>{$('setSheet').hidden=true;$('gearBtn').focus();scheduleAutoRoll();};
 $('setClose').onclick=closeSet;$('setBg').onclick=closeSet;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('setSheet').hidden)closeSet();});
 document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{cfg.level=b.dataset.level;saveCfg();renderSettings();render();});
+$('swAutoRoll').onclick=()=>{snd.autoRoll=!snd.autoRoll;saveSnd();renderSettings();scheduleAutoRoll();};
 $('swFx').onclick=()=>{snd.fx=!snd.fx;saveSnd();renderSettings();if(snd.fx)sfxClack();};
+
+/* Otomatik zar */
+let autoRollTimer=null;
+function autoRollReady(){
+  return !!(snd.autoRoll&&S.phase==='roll'&&humanTurn()&&!S.busy&&!canDouble(S.turn)
+    &&$('cubeAsk').hidden&&$('confirm').hidden&&$('setSheet').hidden&&$('sheet').hidden);
+}
+function scheduleAutoRoll(){
+  if(autoRollTimer||!autoRollReady())return;
+  const g=S.gen;
+  autoRollTimer=setTimeout(()=>{autoRollTimer=null;if(g===S.gen&&autoRollReady())humanRoll();else scheduleAutoRoll();},750);
+}
 
 /* ===== Animasyon ===== */
 const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1083,6 +1101,7 @@ function render(){
   $('setupLevel').hidden=S.mode!=='ai';
   $('setupHint').textContent=(cfg.sets>1?`${cfg.sets} setten ${Math.ceil(cfg.sets/2)} tanesini alan maçı kazanır. `:'')+`Seti ${cfg.games} oyuna ilk ulaşan alır; mars iki oyun sayılır.`;
   renderTabSum();
+  scheduleAutoRoll();
   const nb=$('newBtn');
   nb.textContent=(S.phase==='over'&&m&&!m.done)?'Sonraki oyun':'Yeni maç';
   nb.classList.toggle('primary',S.phase==='over');
@@ -1116,7 +1135,7 @@ $('confirmYes').onclick=abandon;
 document.querySelectorAll('.chips').forEach(ch=>ch.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const v=b.dataset.v;cfg[ch.dataset.k]=isNaN(v)?v:Number(v);saveCfg();render();}));
 $('startBtn').onclick=startMatch;
 ['p1','p2'].forEach(id=>$(id).addEventListener('input',e=>{cfg[id]=e.target.value.trim();}));
-$('confirmNo').onclick=()=>{$('confirm').hidden=true;};
+$('confirmNo').onclick=()=>{$('confirm').hidden=true;scheduleAutoRoll();};
 
 /* ===== Hesap ve kayıt ===== */
 let db=null,uid=null,profRef=null,readOnly=false,saving=false,again=false;
@@ -1272,7 +1291,7 @@ function renderSheet(){
   }
 }
 function openSheet(tab){sheetTab=tab||'menu';$('sheet').hidden=false;renderSheet();if(toastLater){toast(toastLater);toastLater='';}$('sheetClose').focus();}
-function closeSheet(){$('sheet').hidden=true;$('garsonBtn').focus();}
+function closeSheet(){$('sheet').hidden=true;$('garsonBtn').focus();scheduleAutoRoll();}
 $('garsonBtn').onclick=()=>openSheet(tabCount()?'menu':'menu');
 $('sheetClose').onclick=closeSheet;$('sheetBg').onclick=closeSheet;
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sheet').hidden)closeSheet();});
