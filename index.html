@@ -66,20 +66,17 @@ header{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-wid
 .greet{margin:0;background:var(--room);border:1px solid var(--line);border-radius:12px;padding:9px 14px;box-shadow:0 3px 10px rgba(15,30,60,.25);font-size:14.5px}
 .greet b{color:var(--brass);font-weight:600}
 
-.tables{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-@media (max-width:620px){.tables{grid-template-columns:1fr}}
-.cards3{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media (max-width:820px){.cards3{grid-template-columns:repeat(2,minmax(0,1fr))}.cards3 .masa:last-child{grid-column:1/-1}.cards3 .masa:last-child .art{aspect-ratio:32/9}}
-@media (max-width:620px){.cards3{grid-template-columns:1fr}.cards3 .masa:last-child .art{aspect-ratio:16/9}}
-.cards3 .masa h2{font-size:24px}
-.sec{display:flex;align-items:center;gap:10px;margin:6px 0 -4px}
-.sec h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--brass-ink);background:var(--field);border-radius:999px;padding:4px 12px;box-shadow:0 3px 10px rgba(15,30,60,.2)}
+.tables{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.tables .masa.open{grid-column:1/-1;flex-direction:row}
+.tables .masa.open .art{flex:0 0 52%;aspect-ratio:16/9;border-bottom:0;border-right:1px solid var(--line)}
+.tables .masa.closed h2{font-size:24px}
+@media (max-width:820px){.tables{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:620px){.tables{grid-template-columns:1fr}.tables .masa.open{flex-direction:column}.tables .masa.open .art{flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 .masa{position:relative;display:flex;flex-direction:column;background:var(--room);border:1px solid var(--line);border-radius:14px;overflow:hidden;color:var(--ink);text-decoration:none;box-shadow:0 6px 16px rgba(15,30,60,.3);min-width:0;transition:transform .15s ease,border-color .15s ease}
 a.masa:hover{transform:translateY(-2px);border-color:var(--brass)}
 a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 .masa .art{position:relative;background:var(--frame-2);border-bottom:1px solid var(--line);aspect-ratio:16/9;max-width:100%;display:flex;align-items:center;justify-content:center}
 .masa .art svg{width:100%;height:100%;display:block}
-.masa .no{position:absolute;top:10px;left:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:var(--field);color:var(--brass-ink);border-radius:999px;padding:3px 10px;font-variant-numeric:tabular-nums}
 .masa .body{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px;flex:1}
 .masa .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .masa h2{font-family:var(--display);font-weight:400;font-size:26px;margin:0;letter-spacing:.03em;line-height:1.1}
@@ -113,11 +110,8 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 
   <p class="greet" id="greet">Hoş geldin. Tavla masası hazır, öteki masalar kuruluyor.</p>
 
-  <main style="display:flex;flex-direction:column;gap:14px">
-  <div class="sec"><h3>Taş ve tahta</h3></div>
-  <div class="tables">
-    <!-- Masa 1: Tavla -->
-    <a class="masa" href="tavla.html" aria-label="Tavla masasına otur">
+  <main class="tables">
+    <a class="masa open" href="tavla.html" aria-label="Tavla masasına otur">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
           <rect x="34" y="18" width="252" height="144" rx="8" fill="var(--frame)"/>
@@ -134,7 +128,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
           <g transform="translate(206 80) rotate(-12)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="11" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/></g>
           <g transform="translate(234 84) rotate(9)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="16" cy="6" r="2" fill="var(--ebony)"/><circle cx="6" cy="16" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/><circle cx="6" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="11" r="2" fill="var(--ebony)"/></g>
         </svg>
-        <span class="no">Masa 1</span>
       </div>
       <div class="body">
         <div class="top"><h2>Tavla</h2><span class="pill open">Açık</span></div>
@@ -143,15 +136,12 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn">Masaya otur</span></div>
       </div>
     </a>
-
-    <!-- Masa 2: Dama -->
     <div class="masa closed" aria-label="Dama masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
           <rect x="88" y="14" width="152" height="152" rx="6" fill="var(--frame)"/>
           <g id="dboard"></g>
         </svg>
-        <span class="no">Masa 2</span>
       </div>
       <div class="body">
         <div class="top"><h2>Dama</h2><span class="pill soon">Yakında</span></div>
@@ -160,8 +150,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
       </div>
     </div>
-
-    <!-- Masa 3: Okey -->
     <div class="masa closed" aria-label="Okey masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -169,7 +157,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
           <rect x="30" y="64" width="260" height="10" rx="3" fill="var(--frame)"/>
           <g id="okeyTiles"></g>
         </svg>
-        <span class="no">Masa 3</span>
       </div>
       <div class="body">
         <div class="top"><h2>Okey</h2><span class="pill soon">Yakında</span></div>
@@ -178,14 +165,11 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
       </div>
     </div>
-
-    <!-- Masa 4: 101 -->
     <div class="masa closed" aria-label="101 Okey masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
           <g id="tiles101"></g>
         </svg>
-        <span class="no">Masa 4</span>
       </div>
       <div class="body">
         <div class="top"><h2>101</h2><span class="pill soon">Yakında</span></div>
@@ -194,13 +178,9 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
       </div>
     </div>
-  </div>
-  <div class="sec"><h3>İskambil</h3></div>
-  <div class="tables cards3">
     <div class="masa closed" aria-label="Pişti masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artPisti"></g></svg>
-        <span class="no">Masa 5</span>
       </div>
       <div class="body">
         <div class="top"><h2>Pişti</h2><span class="pill soon">Yakında</span></div>
@@ -212,7 +192,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
     <div class="masa closed" aria-label="Batak masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artBatak"></g></svg>
-        <span class="no">Masa 6</span>
       </div>
       <div class="body">
         <div class="top"><h2>Batak</h2><span class="pill soon">Yakında</span></div>
@@ -224,7 +203,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
     <div class="masa closed" aria-label="King masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artKing"></g></svg>
-        <span class="no">Masa 7</span>
       </div>
       <div class="body">
         <div class="top"><h2>King</h2><span class="pill soon">Yakında</span></div>
@@ -233,7 +211,6 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
       </div>
     </div>
-  </div>
   </main>
 
   <p class="foot">Yeni masalar hazır oldukça açılacak.</p>

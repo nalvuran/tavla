@@ -2,17 +2,17 @@
 
 Telefonda oynanan kahvehane oyunları. Gir: https://nalvuran.github.io/tavla/
 
-Ana sayfada oyuncu masasını seçer:
+Ana sayfada oyuncu oynayacağı oyunu seçer:
 
-| Masa | Oyun | Durum | Dosya |
-|---|---|---|---|
-| 1 | Tavla | Açık | `tavla.html` |
-| 2 | Dama | Yakında | |
-| 3 | Okey | Yakında | |
-| 4 | 101 | Yakında | |
-| 5 | Pişti | Yakında | |
-| 6 | Batak | Yakında | |
-| 7 | King | Yakında | |
+| Oyun | Durum | Dosya |
+|---|---|---|
+| Tavla | Açık | `tavla.html` |
+| Dama | Yakında | |
+| Okey | Yakında | |
+| 101 | Yakında | |
+| Pişti | Yakında | |
+| Batak | Yakında | |
+| King | Yakında | |
 
 
 ## Tavla
