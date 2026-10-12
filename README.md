@@ -10,8 +10,10 @@ Ana sayfada oyuncu masasını seçer:
 | 2 | Dama | Yakında | |
 | 3 | Okey | Yakında | |
 | 4 | 101 | Yakında | |
+| 5 | Pişti | Yakında | |
+| 6 | Batak | Yakında | |
+| 7 | King | Yakında | |
 
-Pişti ve batak ileride eklenecek.
 
 ## Tavla
 - Bilgisayara karşı (Acemi, Kalfa, Usta) ya da aynı telefonda iki kişi

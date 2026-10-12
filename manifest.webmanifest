@@ -1,7 +1,7 @@
 {
   "name": "Kahvehane",
   "short_name": "Kahvehane",
-  "description": "Kahvehane oyunları: tavla, dama, okey ve 101.",
+  "description": "Kahvehane oyunları: tavla, dama, okey, 101, pişti, batak ve king.",
   "lang": "tr",
   "start_url": "./",
   "scope": "./",

@@ -1,5 +1,5 @@
 // Önce internetten en yeni sürümü dener; bağlantı yoksa kayıtlı kopyayı açar.
-const CACHE = 'kahvehane-v2';
+const CACHE = 'kahvehane-v3';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
 self.addEventListener('fetch', e => {
