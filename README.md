@@ -8,7 +8,7 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 |---|---|---|
 | Tavla | Açık | `tavla.html` |
 | Dama | Açık | `dama.html` |
-| Okey | Yakında | |
+| Okey | Açık | `okey.html` |
 | 101 | Yakında | |
 | Pişti | Yakında | |
 | Batak | Yakında | |
@@ -31,6 +31,13 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Tek hamle varsa kendiliğinden oynanır, zincirleme yemede tek yol varsa devam eder
 - Geri al, pes et, beraberlik (iki tek dama ya da 50 hamle ilerlemesiz)
 - Garson, adisyon ve hesap defteri
+
+## Okey
+- Sen ve üç bilgisayar (Rıza, Şükrü, Cevdet); seviye Acemi, Kalfa ya da Usta
+- 106 taş, gösterge ve okey, sahte okey; seri ve grup perler, 12-13-1 geçerli, 13-1-2 geçersiz
+- Desteden ya da soldakinin attığından çek; istakada iki dokunuşla yer değiştir, Seri diz / Çift diz
+- Bitir: normal bitiş herkesten 2, okey atarak ya da çiftten 4 puan; gösterge 1 puan
+- Maç 10, 14 ya da 20 puandan; biri sıfırlanınca en yüksek puanlı kazanır, en düşük hesabı öder
 
 ## Kurabiye, garson ve adisyon (`garson.js`, tüm masalarda ortak)
 - Para birimi kurabiye; gerçek parayla bağı yok. İlk açılışta 50, her gün 10 kurabiye ikram

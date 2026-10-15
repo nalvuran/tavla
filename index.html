@@ -71,7 +71,7 @@ header{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-wid
 .tables .slot>.masa{flex:1 1 auto;width:100%}
 .tables .slot.open{grid-column:1/-1}
 .tables .masa.open{flex-direction:row}
-.info{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--room);color:var(--brass);border:1px solid var(--brass);font:italic 400 20px var(--display);line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(15,30,60,.35);padding:0}
+.info{position:absolute;top:8px;right:8px;z-index:2;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--room);color:var(--brass);border:1px solid var(--brass);font:italic 400 15px var(--display);line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(15,30,60,.35);padding:0}
 .kurallink{align-self:center;font:inherit;font-size:13.5px;font-weight:600;color:var(--brass);background:var(--room);border:1px solid var(--brass);border-radius:999px;padding:7px 14px;cursor:pointer;box-shadow:0 3px 10px rgba(15,30,60,.25)}
 .kurallink:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .info:hover{background:var(--room-2)}
@@ -118,7 +118,7 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
 
   <button class="kurallink" type="button" data-oyun="kahvehane">Kurabiye ve hesap kuralları</button>
 
-  <p class="greet" id="greet">Hoş geldin. Tavla ve dama masaları hazır, öteki masalar kuruluyor.</p>
+  <p class="greet" id="greet">Hoş geldin. Tavla, dama ve okey masaları hazır, öteki masalar kuruluyor.</p>
 
   <main class="tables">
     <div class="slot open">
@@ -166,8 +166,8 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
       </a>
       <button class="info" type="button" data-oyun="dama" aria-label="Dama kuralları">i</button>
     </div>
-    <div class="slot closed">
-      <div class="masa closed" aria-label="Okey masası, yakında">
+    <div class="slot open">
+      <a class="masa open" href="okey.html" aria-label="Okey masasına otur">
         <div class="art">
           <svg viewBox="0 0 320 180" aria-hidden="true">
             <rect x="30" y="104" width="260" height="22" rx="4" fill="var(--frame)"/>
@@ -176,12 +176,12 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
           </svg>
         </div>
         <div class="body">
-          <div class="top"><h2>Okey</h2><span class="pill soon">Yakında</span></div>
+          <div class="top"><h2>Okey</h2><span class="pill open">Açık</span></div>
           <p>Dört kişilik klasik okey. Gösterge, okey taşı ve çift açma.</p>
-          <div class="meta"><span>4 oyuncu</span><span>106 taş</span></div>
-          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+          <div class="meta"><span>Sen ve 3 bilgisayar</span><span>Acemi · Kalfa · Usta</span></div>
+          <div class="cta"><span class="btn">Masaya otur</span></div>
         </div>
-      </div>
+      </a>
       <button class="info" type="button" data-oyun="okey" aria-label="Okey kuralları">i</button>
     </div>
     <div class="slot closed">
@@ -352,7 +352,7 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         document.getElementById('who').textContent=name;
         const first=name.split(' ')[0];
         const g=document.getElementById('greet');g.textContent='';
-        g.append('Hoş geldin, ');const b=document.createElement('b');b.textContent=first;g.append(b,'. Tavla ve dama masaları hazır, öteki masalar kuruluyor.');
+        g.append('Hoş geldin, ');const b=document.createElement('b');b.textContent=first;g.append(b,'. Tavla, dama ve okey masaları hazır, öteki masalar kuruluyor.');
       }
       document.getElementById('whoSub').textContent='Kahvehaneye giriş yapıldı';
       if(me&&me.avatarUrl)document.getElementById('avatar').src=me.avatarUrl;

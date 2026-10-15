@@ -13,7 +13,7 @@ const ORDER_LIMIT=3;          // oyun başına kişi başı sipariş
 const DEBT_LIMIT=30;          // veresiye sınırı
 const DAILY=10,WELCOME=50;    // günlük ve ilk açılış ikramı
 const TIPS={acemi:0,kalfa:2,usta:5}; // bilgisayarı yenince ocak bahşişi
-const GAME_NAMES={tavla:'Tavla',dama:'Dama'};
+const GAME_NAMES={tavla:'Tavla',dama:'Dama',okey:'Okey','101':'101',pisti:'Pişti',batak:'Batak',king:'King'};
 const paidBy=n=>n==='Sen'?'Sen ödedin':`${n} ödedi`;
 let GAME='tavla',ledger=[],ledgerRef=null,ledgerSaving=false,ledgerAgain=false,toastLater='',sheetTab='menu',toastTimer=0;
 let wallet={coins:WELCOME,daily:'',started:false},gOrders=[0,0],orderFor=0;
@@ -140,7 +140,7 @@ function renderSheet(){
     const slip=el('div','slip');
     slip.append(el('h3','','Adisyon'));
     const d=new Date();
-    slip.append(el('div','meta',`${GAME_NAMES[GAME]} masası: ${nameOf(W)} – ${nameOf(B)} · ${d.toLocaleDateString('tr-TR')} ${d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`));
+    slip.append(el('div','meta',`${GAME_NAMES[GAME]} masası: ${typeof masaAdi==='function'?masaAdi():nameOf(W)+' – '+nameOf(B)} · ${d.toLocaleDateString('tr-TR')} ${d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`));
     const keys=tabKeys();
     if(!keys.length)slip.append(el('p','empty','Henüz bir şey söylenmedi. Menüden sipariş ver.'));
     for(const k of keys){
