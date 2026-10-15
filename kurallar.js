@@ -9,7 +9,7 @@ const KURALLAR={
     {h:'Pul oynamak',m:['Her zar ayrı bir hamledir: 5-3 attıysan bir pulu 5, bir pulu 3 ilerletirsin ya da aynı pulu 8 ilerletirsin.','Çift gelirse (örneğin 4-4) dört kez oynarsın.','İki ya da daha fazla rakip pulun olduğu haneye (kapıya) giremezsin.','İki zarı da oynayabiliyorsan ikisini de oynamak zorundasın. Sadece biri oynanabiliyorsa büyük zar oynanır.']},
     {h:'Pul kırmak',m:['Rakibin tek pulunun (açık pulun) olduğu haneye gelirsen o pulu kırarsın; kırılan pul ortadaki bara gider.','Barda pulu olan, önce o pulu rakibin evinden oyuna sokmak zorundadır. Giremezse sırası geçer.']},
     {h:'Toplamak',m:['Bütün pulların evine gelince toplamaya başlarsın: zar kaç gelirse o hanedeki pulu tahtadan çıkarırsın.','O hanede pul yoksa ve daha geride de pulun kalmadıysa, büyük zarla en arkadaki pulunu toplayabilirsin.']},
-    {h:'Mars ve maç',m:['Rakip hiç pul toplamadan bitirirsen mars yaparsın: oyun 2 sayılır.','Maçta set ve oyun sayısını sen seçersin. Seti belirlenen oyun sayısına ilk ulaşan alır.']},
+    {h:'Mars ve maç',m:['Rakip hiç pul toplamadan bitirirsen mars yaparsın: oyun 2 sayılır. Mars yiyen masaya bir tur çay ısmarlar.','Maçta set ve oyun sayısını sen seçersin. Seti belirlenen oyun sayısına ilk ulaşan alır.']},
     {h:'Katlama zarı (isteğe bağlı)',m:['Sıra sendeyken zar atmadan oyunun değerini ikiye katlamayı teklif edebilirsin. Rakip kabul ederse oyun 2 sayı değerinde sürer ve katlama hakkı ona geçer; kabul etmezse oyunu bırakır ve 1 sayı verir.','Değer 2, 4, 8 diye en fazla 64’e kadar katlanır; mars da ayrıca ikiye katlar.','Crawford kuralı: Bir oyuncu sete bir oyun kalınca, sıradaki bir oyunda katlama yapılamaz.']},
     {h:'Bu masada',m:['Bir pula dokununca gidebileceği haneler parlar; uzak bir haneye dokunursan pul zarları sırayla kullanarak oraya gider.','Tek seçeneği olan zar kendiliğinden oynanır; hiç hamle yoksa sıra kendiliğinden geçer.','Ayarlardan zarı otomatik attırabilir, bilgisayarın seviyesini (Acemi, Kalfa, Usta) seçebilirsin.']}
   ]},
@@ -47,6 +47,7 @@ const KURALLAR={
     {h:'Oynanış',m:['Yerdeki renge uymak zorunludur ve elinden geliyorsa yerdeki en büyük kâğıdı geçmek zorundasın.','Renge uyamıyorsan koz atmak zorundasın; kozun da yoksa istediğin kâğıdı atarsın.','Koz bir kez oynanmadan (koz açılmadan) el başında koz atılamaz.','Eli en büyük koz, koz yoksa yerdeki rengin en büyük kâğıdı alır; alan sonraki eli başlatır.']},
     {h:'Puan (yaygın kural)',m:['İhaleyi alan, söylediği kadar ya da daha fazla el alırsa aldığı el kadar puan yazar. Alamazsa söylediği sayı kadar eksi yazılır: batar.','Diğer oyuncular aldıkları el kadar puan yazar; hiç el alamayan oyuncu batar ve eksi yazılır.']}
   ]},
+  kahvehane:{ad:'Kahvehane',kahve:false,ozet:'Kurabiye, garson, adisyon ve hesap düzeni. Bütün masalarda aynıdır.',bolumler:[]},
   king:{ad:'King',acik:false,ozet:'Dört kişilik, yirmi ellik kâğıt oyunu: cezalardan kaç, kozlarda el topla.',bolumler:[
     {h:'Düzen',m:['52 kâğıt dört oyuncuya 13’er dağıtılır. Oyun 20 el sürer.','Her oyuncu sırası gelince oynanacak eli seçer: toplamda 12 ceza eli ve 8 koz eli oynanır. Her ceza en fazla iki kez seçilebilir.']},
     {h:'Oynanış',m:['Yerdeki renge uymak zorunludur; uyamıyorsan istediğin kâğıdı atabilirsin.','Ceza ellerinde, cezalı kâğıdı atma fırsatın varsa (renge uyamıyorsan) atmak zorundasın.']},
@@ -54,10 +55,17 @@ const KURALLAR={
     {h:'Koz elleri',m:['Kozu eli seçen oyuncu belirler. Aldığın her el artı 50 puan.','Renge uyamıyorsan koz atmak zorundasın.','Yirmi el sonunda puanı en yüksek olan kazanır.']}
   ]}
 };
-const KAHVE_NOTU={h:'Kahvehane',m:['Garsondan sipariş verebilirsin; fiyatlar kurabiyedir, gerçek parayla bağı yoktur. Bir oyunda kişi başı en fazla 3 şey söylenebilir.','Maçı kaybeden masanın hesabını öder. Bilgisayarı yenersen ocak ısmarlar ve seviyeye göre bahşiş verir.','Ocakçı her gün 10 kurabiye ikram eder. Kurabiyen biterse hesap veresiyeye yazılır.']};
+const KAHVE_BOLUMLER=[
+  {h:'Kurabiye',m:['Kahvehanede para birimi kurabiyedir. Gerçek parayla bağı yoktur; kurabiye paraya çevrilmez, başkasına gönderilmez.','Kahvehaneye ilk gelişinde ocakçı 50 kurabiye ikram eder. Sonra her gün 10 kurabiye daha verir.','Kesen ve hesap defterin bütün masalarda ortaktır; tavlada kazandığın kurabiyeyle damada çay içebilirsin. Şimdilik bu telefonda saklanır.']},
+  {h:'Garson ve adisyon',m:['Garsondan çay, kahve, soğuk içecek ve tost söyleyebilirsin. Fiyatlar: çay 2, Türk kahvesi 5, kaşarlı tost 10 kurabiye gibi.','Bir oyunda kişi başı en fazla 3 şey söylenebilir; yeni oyunda hakkın yenilenir.','Bilgisayara karşı yalnızca sen sipariş verirsin. İki kişilik oyunda iki oyuncu da kendi siparişini verir; adisyonda kimin ne söylediği yazar.','Yanlış söylediğini adisyondan eksiltebilirsin.']},
+  {h:'Hesabı kim öder',m:['Maçı kaybeden masanın bütün hesabını öder; adisyon maç bitince kapanır.','Bilgisayara karşı kazanırsan ocak ısmarlar: hesap bedava, üstüne bahşiş. Acemi\'yi yenince bahşiş yok, Kalfa\'yı yenince 2, Usta\'yı yenince 5 kurabiye.','Maçı yarıda bırakırsan hesabı sen ödersin.','Tavlada mars yiyen masaya bir tur çay ısmarlar: iki çay, 4 kurabiye.','İki kişilik oyunda telefonun sahibi beyaz oyuncu sayılır; beyaz öderse kurabiye onun kesesinden düşer.']},
+  {h:'Veresiye',m:['Kurabiyen hesabı karşılamazsa kalan kısım veresiye defterine yazılır.','Veresiye 30 kurabiyeye ulaşınca garson sipariş almaz. Oyun oynamaya devam edebilirsin.','Ocakçının günlük ikramı önce veresiyeden düşer.']},
+  {h:'Hesap defteri',m:['Garsonun Hesap defteri sekmesinde kesendeki kurabiye, kimin ne kadar ödediği ve kapanan her hesap görünür: tarih, masa, rakip, skor ve neler içildiği.']}
+];
 
 function kurallarAc(oyun){
   const k=KURALLAR[oyun];if(!k)return;
+  if(oyun==='kahvehane')k.bolumler=KAHVE_BOLUMLER;
   if(!document.getElementById('kuralStyle')){
     const st=document.createElement('style');st.id='kuralStyle';
     st.textContent=`.kural{position:fixed;inset:0;z-index:40;display:flex;align-items:flex-end;justify-content:center}
@@ -91,7 +99,7 @@ function kurallarAc(oyun){
   box.querySelector('.oz').textContent=k.ozet;
   const bd=box.querySelector('.bd');bd.replaceChildren();
   if(k.acik===false){const n=document.createElement('p');n.className='not';n.textContent='Bu masa henüz açılmadı. Aşağıda kahvehanelerde en yaygın oynanan kurallar var; masa açılırken küçük farklar olabilir.';bd.append(n);}
-  const sec=k.acik===false?k.bolumler:k.bolumler.concat([KAHVE_NOTU]);
+  const sec=k.acik===false||k.kahve===false?k.bolumler:k.bolumler.concat(KAHVE_BOLUMLER);
   for(const b of sec){
     const h=document.createElement('h3');h.textContent=b.h;bd.append(h);
     const ul=document.createElement('ul');
