@@ -7,7 +7,7 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 | Oyun | Durum | Dosya |
 |---|---|---|
 | Tavla | Açık | `tavla.html` |
-| Dama | Yakında | |
+| Dama | Açık | `dama.html` |
 | Okey | Yakında | |
 | 101 | Yakında | |
 | Pişti | Yakında | |
@@ -22,6 +22,15 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Zorunlu hamleler otomatik oynanır, uzak hedefler tek dokunuşla
 - Pul animasyonları ve ses efektleri
 - Garson, adisyon ve hesap defteri: maçı kaybeden hesabı öder
+
+## Dama
+- Türk daması: taşlar ileri ve yana gider, yeme zorunlu ve en çok taş yiyen hamle oynanır
+- Yenen taş anında kalkar, dama uzun gider ve uzaktan yer, 180° dönemez
+- Bilgisayara karşı (Acemi, Kalfa, Usta) ya da aynı telefonda iki kişi
+- Maç: 1, 2 ya da 3 oyun alan kazanır; oyunları sırayla iki taraf başlatır
+- Tek hamle varsa kendiliğinden oynanır, zincirleme yemede tek yol varsa devam eder
+- Geri al, pes et, beraberlik (iki tek dama ya da 50 hamle ilerlemesiz)
+- Garson, adisyon ve hesap defteri
 
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.

@@ -108,7 +108,7 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
     <p>Bir masaya otur, oyununu seç.</p>
   </section>
 
-  <p class="greet" id="greet">Hoş geldin. Tavla masası hazır, öteki masalar kuruluyor.</p>
+  <p class="greet" id="greet">Hoş geldin. Tavla ve dama masaları hazır, öteki masalar kuruluyor.</p>
 
   <main class="tables">
     <a class="masa open" href="tavla.html" aria-label="Tavla masasına otur">
@@ -136,7 +136,7 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         <div class="cta"><span class="btn">Masaya otur</span></div>
       </div>
     </a>
-    <div class="masa closed" aria-label="Dama masası, yakında">
+    <a class="masa open" href="dama.html" aria-label="Dama masasına otur">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
           <rect x="88" y="14" width="152" height="152" rx="6" fill="var(--frame)"/>
@@ -144,12 +144,12 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         </svg>
       </div>
       <div class="body">
-        <div class="top"><h2>Dama</h2><span class="pill soon">Yakında</span></div>
+        <div class="top"><h2>Dama</h2><span class="pill open">Açık</span></div>
         <p>Türk daması: taşlar düz ilerler, yeme zorunlu, dama olan taş uzun gider.</p>
-        <div class="meta"><span>2 oyuncu</span><span>8×8 tahta</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        <div class="meta"><span>1–2 oyuncu</span><span>Acemi · Kalfa · Usta</span></div>
+        <div class="cta"><span class="btn">Masaya otur</span></div>
       </div>
-    </div>
+    </a>
     <div class="masa closed" aria-label="Okey masası, yakında">
       <div class="art">
         <svg viewBox="0 0 320 180" aria-hidden="true">
@@ -321,7 +321,7 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
         document.getElementById('who').textContent=name;
         const first=name.split(' ')[0];
         const g=document.getElementById('greet');g.textContent='';
-        g.append('Hoş geldin, ');const b=document.createElement('b');b.textContent=first;g.append(b,'. Tavla masası hazır, öteki masalar kuruluyor.');
+        g.append('Hoş geldin, ');const b=document.createElement('b');b.textContent=first;g.append(b,'. Tavla ve dama masaları hazır, öteki masalar kuruluyor.');
       }
       document.getElementById('whoSub').textContent='Kahvehaneye giriş yapıldı';
       if(me&&me.avatarUrl)document.getElementById('avatar').src=me.avatarUrl;
