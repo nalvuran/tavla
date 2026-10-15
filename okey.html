@@ -307,6 +307,7 @@ header .acct{margin-right:auto}
 
   <div class="controls">
     <button class="btn gost" id="gostBtn" hidden>Göstergeyi göster</button>
+    <button class="btn" id="returnBtn" hidden>Geri koy</button>
     <button class="btn primary" id="throwBtn">At</button>
     <button class="btn" id="finishBtn">Bitir</button>
     <button class="btn" id="newBtn">Yeni maç</button>
@@ -595,7 +596,7 @@ function beginHand(){
   for(let k=0;k<4;k++){const s=(m.starter+k)%4;S.hands[s]=tiles.splice(0,s===m.starter?15:14);}
   S.stack=tiles;S.disc=[[],[],[],[]];S.first=[true,true,true,true];S.shown=[false,false,false,false];S.takes=[[],[],[],[]];
   S.rack=new Array(24).fill(null);placeArranged(arrangeRuns(S.hands[0],S.ok));
-  S.sel=-1;S.newId=-1;S.phase='play';S.turn=m.starter;S.need='discard';S.busy=false;S.last=null;
+  S.sel=-1;S.newId=-1;S.sideTaken=null;S.phase='play';S.turn=m.starter;S.need='discard';S.busy=false;S.last=null;
   $('handover').hidden=true;
   S.msg=`${m.hand}. el. Gösterge ${tileName(S.gost)}, okey ${RENK[S.ok.c]} ${S.ok.n}. `;
   sfxShuffle();
@@ -716,12 +717,22 @@ function endMatchCheck(){
 function drawFrom(src){
   if(S.phase!=='play'||S.turn!==0||S.busy||S.need!=='draw')return;
   let t;
-  if(src==='side'){t=S.disc[3].pop();if(!t)return;S.takes[0].push(valOf(t,S.ok));}
+  if(src==='side'){t=S.disc[3].pop();if(!t)return;S.takes[0].push(valOf(t,S.ok));S.sideTaken=t;}
   else{if(!S.stack.length){endHand(-1);return;}t=S.stack.pop();}
   const j=S.rack.indexOf(null);S.rack[j]=t;S.newId=t.id;S.sel=-1;
   S.hands[0]=rackTiles();S.need='discard';sfxTick();
   if(S.first[0]&&!S.shown[0]){} // gösterge ilk turda gösterilebilir
   S.msg=finishingDiscards(S.hands[0],S.ok).length?'Elin bitmeye hazır! Atacağın taşı seç ve Bitir’e bas.':'Atacağın taşı seç ve At’a bas.';
+  render();
+}
+// Yandan alınan taşı, bir şey atmadan önce geri koy
+function returnSide(){
+  const t=S.sideTaken;
+  if(!t||S.phase!=='play'||S.turn!==0||S.busy||S.need!=='discard')return;
+  const j=S.rack.findIndex(x=>x&&x.id===t.id);if(j<0)return;
+  S.rack[j]=null;S.hands[0]=rackTiles();S.disc[3].push(t);S.takes[0].pop();
+  S.sideTaken=null;S.newId=-1;S.sel=-1;S.need='draw';sfxTick();
+  S.msg=`${tileName(t)} taşını ${gen(seatName(3))} önüne geri koydun. Desteden ya da yandan çek.`;
   render();
 }
 function onSlot(i){
@@ -740,11 +751,11 @@ function throwSel(finish){
   if(finish){
     const kind=handDone(rest,S.ok);
     if(!kind){S.msg='Bu taşı atınca elin bitmiyor. Perlerini kontrol et.';render();return;}
-    S.rack[S.sel]=null;S.sel=-1;S.hands[0]=rackTiles();S.first[0]=false;
+    S.rack[S.sel]=null;S.sel=-1;S.sideTaken=null;S.hands[0]=rackTiles();S.first[0]=false;
     endHand(0,kind,isWild(t,S.ok),rest,t);return;
   }
   if(isWild(t,S.ok)&&!finish){S.msg='Okeyi atarsan rakibin işine yarar. Yine de atmak için tekrar At’a bas.';if(S._okWarn!==t.id){S._okWarn=t.id;render();return;}}
-  S.rack[S.sel]=null;S.sel=-1;S.newId=-1;S.hands[0]=rackTiles();S.first[0]=false;
+  S.rack[S.sel]=null;S.sel=-1;S.newId=-1;S.sideTaken=null;S.hands[0]=rackTiles();S.first[0]=false;
   S.disc[0].push(t);sfxClack();S.msg='';
   nextTurn();
 }
@@ -798,6 +809,7 @@ function render(){
   $('pips').innerHTML=m&&S.phase!=='setup'?`${seatName(0)} <b>${m.pts[0]}</b> puan<br>${m.hand}. el`:'';
   const myTurn=S.phase==='play'&&S.turn===0&&!S.busy;
   $('throwBtn').disabled=!(myTurn&&S.need==='discard');
+  $('returnBtn').hidden=!(myTurn&&S.need==='discard'&&S.sideTaken&&S.rack.some(x=>x&&x.id===S.sideTaken.id));
   $('finishBtn').disabled=!(myTurn&&S.need==='discard');
   $('gostBtn').hidden=!(myTurn&&S.first[0]&&!S.shown[0]&&S.gost&&rackTiles().some(t=>!t.fake&&t.c===S.gost.c&&t.n===S.gost.n));
   $('runBtn').disabled=$('pairBtn').disabled=S.phase==='setup';
@@ -880,6 +892,7 @@ $('swFx').onclick=()=>{snd.fx=!snd.fx;saveSnd();renderSettings();if(snd.fx)sfxCl
 
 $('rack').addEventListener('click',e=>{const el=e.target.closest('[data-i]');if(el)onSlot(Number(el.dataset.i));});
 $('throwBtn').onclick=()=>throwSel(false);
+$('returnBtn').onclick=returnSide;
 $('finishBtn').onclick=()=>throwSel(true);
 $('gostBtn').onclick=gost;
 $('runBtn').onclick=()=>sortRack('run');
