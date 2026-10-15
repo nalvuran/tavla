@@ -40,5 +40,8 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Tavlada mars yiyen masaya bir tur çay ısmarlar
 - Kurabiye biterse veresiye (en fazla 30); kese ve hesap defteri tüm masalarda ortak
 
+## Kurallar (`kurallar.js`)
+Her masanın sağ üst köşesindeki **i** düğmesi o oyunun kurallarını açar; tavla ve dama sayfalarında üst çubukta da var. Açılmamış masalarda kahvehanelerde en yaygın oynanan kurallar yazılı.
+
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.

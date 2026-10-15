@@ -67,7 +67,13 @@ header{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-wid
 .greet b{color:var(--brass);font-weight:600}
 
 .tables{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.tables .masa.open{grid-column:1/-1;flex-direction:row}
+.tables .slot{position:relative;display:flex;min-width:0}
+.tables .slot>.masa{flex:1 1 auto;width:100%}
+.tables .slot.open{grid-column:1/-1}
+.tables .masa.open{flex-direction:row}
+.info{position:absolute;top:10px;right:10px;z-index:2;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--room);color:var(--brass);border:1px solid var(--brass);font:italic 400 20px var(--display);line-height:1;cursor:pointer;box-shadow:0 3px 10px rgba(15,30,60,.35);padding:0}
+.info:hover{background:var(--room-2)}
+.info:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 .tables .masa.open .art{flex:0 0 52%;aspect-ratio:16/9;border-bottom:0;border-right:1px solid var(--line)}
 .tables .masa.closed h2{font-size:24px}
 @media (max-width:820px){.tables{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -111,105 +117,126 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
   <p class="greet" id="greet">Hoş geldin. Tavla ve dama masaları hazır, öteki masalar kuruluyor.</p>
 
   <main class="tables">
-    <a class="masa open" href="tavla.html" aria-label="Tavla masasına otur">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true">
-          <rect x="34" y="18" width="252" height="144" rx="8" fill="var(--frame)"/>
-          <rect x="44" y="26" width="110" height="128" rx="3" fill="var(--field)"/>
-          <rect x="166" y="26" width="110" height="128" rx="3" fill="var(--field)"/>
-          <g id="tpts"></g>
-          <rect x="154" y="26" width="12" height="128" fill="var(--frame)"/>
-          <g>
-            <circle cx="53" cy="36" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="53" cy="52" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/>
-            <circle cx="135" cy="144" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="135" cy="128" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="135" cy="112" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/>
-            <circle cx="257" cy="36" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="257" cy="52" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/>
-            <circle cx="185" cy="144" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="185" cy="128" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="185" cy="112" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/>
-          </g>
-          <g transform="translate(206 80) rotate(-12)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="11" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/></g>
-          <g transform="translate(234 84) rotate(9)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="16" cy="6" r="2" fill="var(--ebony)"/><circle cx="6" cy="16" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/><circle cx="6" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="11" r="2" fill="var(--ebony)"/></g>
-        </svg>
-      </div>
-      <div class="body">
-        <div class="top"><h2>Tavla</h2><span class="pill open">Açık</span></div>
-        <p>Bilgisayara karşı ya da karşılıklı. Set, mars ve katlama zarıyla.</p>
-        <div class="meta"><span>1–2 oyuncu</span><span>Acemi · Kalfa · Usta</span></div>
-        <div class="cta"><span class="btn">Masaya otur</span></div>
-      </div>
-    </a>
-    <a class="masa open" href="dama.html" aria-label="Dama masasına otur">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true">
-          <rect x="88" y="14" width="152" height="152" rx="6" fill="var(--frame)"/>
-          <g id="dboard"></g>
-        </svg>
-      </div>
-      <div class="body">
-        <div class="top"><h2>Dama</h2><span class="pill open">Açık</span></div>
-        <p>Türk daması: taşlar düz ilerler, yeme zorunlu, dama olan taş uzun gider.</p>
-        <div class="meta"><span>1–2 oyuncu</span><span>Acemi · Kalfa · Usta</span></div>
-        <div class="cta"><span class="btn">Masaya otur</span></div>
-      </div>
-    </a>
-    <div class="masa closed" aria-label="Okey masası, yakında">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true">
-          <rect x="30" y="104" width="260" height="22" rx="4" fill="var(--frame)"/>
-          <rect x="30" y="64" width="260" height="10" rx="3" fill="var(--frame)"/>
-          <g id="okeyTiles"></g>
-        </svg>
-      </div>
-      <div class="body">
-        <div class="top"><h2>Okey</h2><span class="pill soon">Yakında</span></div>
-        <p>Dört kişilik klasik okey. Gösterge, okey taşı ve çift açma.</p>
-        <div class="meta"><span>4 oyuncu</span><span>106 taş</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
-      </div>
+    <div class="slot open">
+      <a class="masa open" href="tavla.html" aria-label="Tavla masasına otur">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true">
+            <rect x="34" y="18" width="252" height="144" rx="8" fill="var(--frame)"/>
+            <rect x="44" y="26" width="110" height="128" rx="3" fill="var(--field)"/>
+            <rect x="166" y="26" width="110" height="128" rx="3" fill="var(--field)"/>
+            <g id="tpts"></g>
+            <rect x="154" y="26" width="12" height="128" fill="var(--frame)"/>
+            <g>
+              <circle cx="53" cy="36" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="53" cy="52" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/>
+              <circle cx="135" cy="144" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="135" cy="128" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="135" cy="112" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/>
+              <circle cx="257" cy="36" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/><circle cx="257" cy="52" r="8" fill="var(--ebony)" stroke="var(--brass)" stroke-width="1.4"/>
+              <circle cx="185" cy="144" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="185" cy="128" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="185" cy="112" r="8" fill="var(--ivory)" stroke="var(--ivory-rim)"/>
+            </g>
+            <g transform="translate(206 80) rotate(-12)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="11" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/></g>
+            <g transform="translate(234 84) rotate(9)"><rect width="22" height="22" rx="4" fill="var(--ivory)" stroke="var(--ivory-rim)"/><circle cx="6" cy="6" r="2" fill="var(--ebony)"/><circle cx="16" cy="6" r="2" fill="var(--ebony)"/><circle cx="6" cy="16" r="2" fill="var(--ebony)"/><circle cx="16" cy="16" r="2" fill="var(--ebony)"/><circle cx="6" cy="11" r="2" fill="var(--ebony)"/><circle cx="16" cy="11" r="2" fill="var(--ebony)"/></g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>Tavla</h2><span class="pill open">Açık</span></div>
+          <p>Bilgisayara karşı ya da karşılıklı. Set, mars ve katlama zarıyla.</p>
+          <div class="meta"><span>1–2 oyuncu</span><span>Acemi · Kalfa · Usta</span></div>
+          <div class="cta"><span class="btn">Masaya otur</span></div>
+        </div>
+      </a>
+      <button class="info" type="button" data-oyun="tavla" aria-label="Tavla kuralları">i</button>
     </div>
-    <div class="masa closed" aria-label="101 Okey masası, yakında">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true">
-          <g id="tiles101"></g>
-        </svg>
-      </div>
-      <div class="body">
-        <div class="top"><h2>101</h2><span class="pill soon">Yakında</span></div>
-        <p>101 Okey: elini en az 101 sayıyla aç, işle, cezayı karşıya yaz.</p>
-        <div class="meta"><span>4 oyuncu</span><span>Eşli veya tekli</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
-      </div>
+    <div class="slot open">
+      <a class="masa open" href="dama.html" aria-label="Dama masasına otur">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true">
+            <rect x="88" y="14" width="152" height="152" rx="6" fill="var(--frame)"/>
+            <g id="dboard"></g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>Dama</h2><span class="pill open">Açık</span></div>
+          <p>Türk daması: taşlar düz ilerler, yeme zorunlu, dama olan taş uzun gider.</p>
+          <div class="meta"><span>1–2 oyuncu</span><span>Acemi · Kalfa · Usta</span></div>
+          <div class="cta"><span class="btn">Masaya otur</span></div>
+        </div>
+      </a>
+      <button class="info" type="button" data-oyun="dama" aria-label="Dama kuralları">i</button>
     </div>
-    <div class="masa closed" aria-label="Pişti masası, yakında">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artPisti"></g></svg>
+    <div class="slot closed">
+      <div class="masa closed" aria-label="Okey masası, yakında">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true">
+            <rect x="30" y="104" width="260" height="22" rx="4" fill="var(--frame)"/>
+            <rect x="30" y="64" width="260" height="10" rx="3" fill="var(--frame)"/>
+            <g id="okeyTiles"></g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>Okey</h2><span class="pill soon">Yakında</span></div>
+          <p>Dört kişilik klasik okey. Gösterge, okey taşı ve çift açma.</p>
+          <div class="meta"><span>4 oyuncu</span><span>106 taş</span></div>
+          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        </div>
       </div>
-      <div class="body">
-        <div class="top"><h2>Pişti</h2><span class="pill soon">Yakında</span></div>
-        <p>Yerdeki son kâğıdı aynısıyla ya da valeyle al. Tek kâğıda pişti 10 sayı.</p>
-        <div class="meta"><span>2 veya 4 oyuncu</span><span>52 kâğıt</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
-      </div>
+      <button class="info" type="button" data-oyun="okey" aria-label="Okey kuralları">i</button>
     </div>
-    <div class="masa closed" aria-label="Batak masası, yakında">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artBatak"></g></svg>
+    <div class="slot closed">
+      <div class="masa closed" aria-label="101 Okey masası, yakında">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true">
+            <g id="tiles101"></g>
+          </svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>101</h2><span class="pill soon">Yakında</span></div>
+          <p>101 Okey: elini en az 101 sayıyla aç, işle, cezayı karşıya yaz.</p>
+          <div class="meta"><span>4 oyuncu</span><span>Eşli veya tekli</span></div>
+          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        </div>
       </div>
-      <div class="body">
-        <div class="top"><h2>Batak</h2><span class="pill soon">Yakında</span></div>
-        <p>İhaleyi al, kozu sen seç, dediğin kadar el topla. Batarsan eksi yazılır.</p>
-        <div class="meta"><span>4 oyuncu</span><span>İhaleli · Koz maça</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
-      </div>
+      <button class="info" type="button" data-oyun="101" aria-label="101 kuralları">i</button>
     </div>
-    <div class="masa closed" aria-label="King masası, yakında">
-      <div class="art">
-        <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artKing"></g></svg>
+    <div class="slot closed">
+      <div class="masa closed" aria-label="Pişti masası, yakında">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artPisti"></g></svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>Pişti</h2><span class="pill soon">Yakında</span></div>
+          <p>Yerdeki son kâğıdı aynısıyla ya da valeyle al. Tek kâğıda pişti 10 sayı.</p>
+          <div class="meta"><span>2 veya 4 oyuncu</span><span>52 kâğıt</span></div>
+          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        </div>
       </div>
-      <div class="body">
-        <div class="top"><h2>King</h2><span class="pill soon">Yakında</span></div>
-        <p>Yirmi el: el, kupa, kız, erkek, rıfkı, son iki cezaları ve koz elleri.</p>
-        <div class="meta"><span>4 oyuncu</span><span>20 el</span></div>
-        <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+      <button class="info" type="button" data-oyun="pisti" aria-label="Pişti kuralları">i</button>
+    </div>
+    <div class="slot closed">
+      <div class="masa closed" aria-label="Batak masası, yakında">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artBatak"></g></svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>Batak</h2><span class="pill soon">Yakında</span></div>
+          <p>İhaleyi al, kozu sen seç, dediğin kadar el topla. Batarsan eksi yazılır.</p>
+          <div class="meta"><span>4 oyuncu</span><span>İhaleli · Koz maça</span></div>
+          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        </div>
       </div>
+      <button class="info" type="button" data-oyun="batak" aria-label="Batak kuralları">i</button>
+    </div>
+    <div class="slot closed">
+      <div class="masa closed" aria-label="King masası, yakında">
+        <div class="art">
+          <svg viewBox="0 0 320 180" aria-hidden="true" preserveAspectRatio="xMidYMid meet"><g id="artKing"></g></svg>
+        </div>
+        <div class="body">
+          <div class="top"><h2>King</h2><span class="pill soon">Yakında</span></div>
+          <p>Yirmi el: el, kupa, kız, erkek, rıfkı, son iki cezaları ve koz elleri.</p>
+          <div class="meta"><span>4 oyuncu</span><span>20 el</span></div>
+          <div class="cta"><span class="btn off">Masa hazırlanıyor</span></div>
+        </div>
+      </div>
+      <button class="info" type="button" data-oyun="king" aria-label="King kuralları">i</button>
     </div>
   </main>
 
@@ -329,6 +356,8 @@ a.masa:focus-visible{outline:2px solid var(--brass);outline-offset:3px}
   })();
 })();
 </script>
+<script src="kurallar.js"></script>
+<script>document.querySelectorAll('.info[data-oyun]').forEach(b=>b.onclick=e=>{e.preventDefault();kurallarAc(b.dataset.oyun);});</script>
 <script>if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));</script>
 </body>
 </html>
