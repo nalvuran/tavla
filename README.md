@@ -32,5 +32,13 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Geri al, pes et, beraberlik (iki tek dama ya da 50 hamle ilerlemesiz)
 - Garson, adisyon ve hesap defteri
 
+## Kurabiye, garson ve adisyon (`garson.js`, tüm masalarda ortak)
+- Para birimi kurabiye; gerçek parayla bağı yok. İlk açılışta 50, her gün 10 kurabiye ikram
+- Oyun başına kişi başı en fazla 3 sipariş; adisyonda kimin ne söylediği görünür
+- Maçı kaybeden masanın tamamını öder
+- Bilgisayara karşı kazanırsan ocak ısmarlar, üstüne bahşiş: Kalfa 2, Usta 5 kurabiye
+- Tavlada mars yiyen masaya bir tur çay ısmarlar
+- Kurabiye biterse veresiye (en fazla 30); kese ve hesap defteri tüm masalarda ortak
+
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.

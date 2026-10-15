@@ -330,6 +330,7 @@ header .acct{margin-right:auto}
   </div>
 </div>
 
+<script src="garson.js"></script>
 <script>
 /* ===== Kurallar ===== */
 const W=0,B=1;
@@ -768,11 +769,11 @@ function gameOver(pl,dropped){
       S.msg+=me?` ${m.setNo}. seti sen aldın.`:` ${m.setNo}. seti ${nameOf(pl)} aldı.`;
       m.setNo++;
       if(m.setWins[pl]>=Math.ceil(m.sets/2)){m.done=true;m.champ=pl;S.msg=(me?'Maçı kazandın!':`Maçı ${nameOf(pl)} kazandı.`)+` Setler ${m.setWins[W]}–${m.setWins[B]}.`;
-        const paid=payTab(1-pl,`${m.setWins[W]}–${m.setWins[B]}`);
-        m.paid=paid?{who:1-pl,total:paid}:null;
-        if(paid)S.msg+=` Hesabı ${S.mode==='ai'&&pl===B?'sen ödüyorsun':nameOf(1-pl)+' ödüyor'}: ${money(paid)}.`;}
+        const st=settleMatch(pl,`${m.setWins[W]}–${m.setWins[B]}`);
+        m.paid=st;if(st)S.msg+=' '+st.text;}
     }
   }
+  if(S.mars)S.msg+=' '+marsRound(1-pl);
   render();save();
 }
 function inProgress(){return S.phase==='move'||S.phase==='roll';}
@@ -784,7 +785,7 @@ function startMatch(){
   beginGame();
 }
 function beginGame(){
-  S.gen++;resetBoard();
+  S.gen++;resetBoard();resetGameOrders();
   if(S.match){S.match.crawNow=S.match.craw==='next';if(S.match.crawNow)S.match.craw='done';}
   const m=S.match,w=m&&m.lastWinner!=null?m.lastWinner:null;
   if(w==null){S.phase='opening';save();startOpening();return;}
@@ -806,7 +807,7 @@ function requestNew(mode){
 }
 function abandon(){
   if(inProgress()&&S.mode==='ai'&&progressed())stats.losses++;
-  if(S.mode==='ai'&&S.match&&!S.match.done){const p=payTab(W,'yarıda bırakıldı');if(p)toastLater=`Maçı bıraktığın için hesabı sen ödedin: ${money(p)}.`;}
+  if(S.mode==='ai'&&S.match&&!S.match.done){const p=payTab(W,'yarıda bırakıldı');if(p)pageToast(`Maçı bıraktığın için hesabı sen ödedin: ${money(p)}.`);}
   S.mode=S.pendingMode||S.mode;showSetup();save();
 }
 
@@ -1079,7 +1080,7 @@ function render(){
   if(S.phase==='over'&&S.winner!=null){over.hidden=false;
     if(m&&m.done){
       $('overTitle').textContent=S.mode==='ai'?(m.champ===W?'Maçı kazandın':'Maçı kaybettin'):`Maç ${nameOf(m.champ)}`;
-      $('overSub').textContent=`Setler ${m.setWins[W]}–${m.setWins[B]}`+(m.paid?` · ${S.mode==='ai'&&m.paid.who===W?'Hesabı sen ödedin':'Hesabı '+nameOf(m.paid.who)+' ödedi'}: ${money(m.paid.total)}`:'');
+      $('overSub').textContent=`Setler ${m.setWins[W]}–${m.setWins[B]}`+(m.paid&&m.paid.short?` · ${m.paid.short}`:'');
     }else{
       $('overTitle').textContent=S.mode==='ai'?(S.winner===W?'Kazandın':'Kaybettin'):`${nameOf(S.winner)} kazandı`;
       $('overSub').textContent=(S.dropped?'Pes edildi · ':'')+(S.mars?'Mars! ':'')+`${S.gamePts} oyun`+(S.cube&&S.cube.v>1?` (×${S.cube.v})`:'');
@@ -1192,114 +1193,11 @@ async function initAccount(){
     }
   }catch(e){}
 }
-/* ===== Garson, adisyon, hesap defteri ===== */
-const MENU=[
-  {cat:'Sıcak',items:[['cay','Çay',32.5],['kahve','Türk kahvesi',75],['nescafe','Neskafe',60],['oralet','Oralet',30],['ihlamur','Ihlamur',40],['sahlep','Sahlep',80]]},
-  {cat:'Soğuk',items:[['su','Su',20],['soda','Soda',30],['ayran','Ayran',40],['gazoz','Gazoz',50],['kola','Kola',70],['meyvesuyu','Meyve suyu',55]]},
-  {cat:'Yiyecek',items:[['kasarli','Kaşarlı tost',155],['karisik','Karışık tost',180],['simit','Simit',30],['cerez','Çerez tabağı',120]]}
-];
-const MENU_BY={};MENU.forEach(c=>c.items.forEach(([id,n,p])=>MENU_BY[id]={n,p}));
-const fmtTRY=new Intl.NumberFormat('tr-TR',{style:'currency',currency:'TRY',minimumFractionDigits:2,maximumFractionDigits:2});
-const money=v=>fmtTRY.format(v);
-S.tab={};
-let ledger=[],ledgerRef=null,ledgerSaving=false,ledgerAgain=false,toastLater='',sheetTab='menu',toastTimer=0;
-const tabTotal=()=>Object.entries(S.tab).reduce((t,[k,q])=>t+(MENU_BY[k]?MENU_BY[k].p*q:0),0);
-const tabCount=()=>Object.values(S.tab).reduce((t,q)=>t+q,0);
-function renderTabSum(){const n=tabCount();$('tabSum').textContent=n?`Adisyon ${money(tabTotal())}`:'Adisyon boş';}
-function payTab(pl,score){
-  const total=tabTotal();if(!total)return 0;
-  const entry={at:Date.now(),total,items:Object.entries(S.tab).map(([k,q])=>[MENU_BY[k].n,q,MENU_BY[k].p]),payer:pl===W?'me':'opp',payerName:nameOf(pl),oppName:nameOf(1-pl),mode:S.mode,score:score||''};
-  ledger.unshift(entry);if(ledger.length>200)ledger.length=200;
-  S.tab={};saveLedger();renderSheet();
-  return total;
-}
-async function saveLedger(){
-  if(!ledgerRef||readOnly)return;
-  if(ledgerSaving){ledgerAgain=true;return;}
-  ledgerSaving=true;
-  try{await ledgerRef.set({entries:ledger});}catch(e){}
-  ledgerSaving=false;if(ledgerAgain){ledgerAgain=false;saveLedger();}
-}
-function toast(t){const el=$('toast');el.textContent=t;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.textContent='';},2600);}
-const ARRIVE=['geliyor!','hemen geliyor.','yolda.','tazesinden geliyor.'];
-function order(id){
-  S.tab[id]=Math.min(99,(S.tab[id]||0)+1);
-  sfxClink();
-  toast(`${MENU_BY[id].n} ${ARRIVE[Math.floor(Math.random()*ARRIVE.length)]}`);
-  renderSheet();renderTabSum();save();
-}
-function changeQty(id,d){
-  const q=(S.tab[id]||0)+d;if(q<=0)delete S.tab[id];else S.tab[id]=Math.min(99,q);
-  renderSheet();renderTabSum();save();
-}
-function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
-function renderSheet(){
-  if($('sheet').hidden)return;
-  document.querySelectorAll('.tabs button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.tab===sheetTab);if(b.dataset.tab==='tab')b.textContent=tabCount()?`Adisyon (${tabCount()})`:'Adisyon';});
-  $('pbMenu').hidden=sheetTab!=='menu';$('pbTab').hidden=sheetTab!=='tab';$('pbLedger').hidden=sheetTab!=='ledger';
-  if(sheetTab==='menu'){
-    const pb=$('pbMenu');pb.replaceChildren();
-    for(const c of MENU){
-      pb.append(el('div','cat',c.cat));
-      const g=el('div','items');
-      for(const [id,n,p] of c.items){
-        const b=el('button','item');b.type='button';b.append(el('b','',n),el('span','',money(p)));
-        if(S.tab[id])b.append(el('i','q',S.tab[id]));
-        b.onclick=()=>order(id);b.setAttribute('aria-label',`${n}, ${money(p)}, sipariş ver`);
-        g.append(b);
-      }
-      pb.append(g);
-    }
-  }else if(sheetTab==='tab'){
-    const pb=$('pbTab');pb.replaceChildren();
-    const slip=el('div','slip');
-    slip.append(el('h3','','Adisyon'));
-    const d=new Date();
-    slip.append(el('div','meta',`Masa: ${nameOf(W)} – ${nameOf(B)} · ${d.toLocaleDateString('tr-TR')} ${d.toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`));
-    const ids=Object.keys(S.tab);
-    if(!ids.length)slip.append(el('p','empty','Henüz bir şey söylenmedi. Menüden sipariş ver.'));
-    for(const id of ids){
-      const r=el('div','row'),it=MENU_BY[id];
-      r.append(el('span','',it.n));
-      const q=el('span','qty');const mn=el('button','','−');mn.type='button';mn.setAttribute('aria-label',`${it.n} azalt`);mn.onclick=()=>changeQty(id,-1);
-      const pl=el('button','','+');pl.type='button';pl.setAttribute('aria-label',`${it.n} artır`);pl.onclick=()=>changeQty(id,1);
-      q.append(mn,el('span','',`${S.tab[id]}×`),pl);r.append(q,el('span','amt',money(it.p*S.tab[id])));slip.append(r);
-    }
-    const t=el('div','tot');t.append(el('span','','Toplam'),el('span','',money(tabTotal())));slip.append(t);
-    slip.append(el('div','foot','Maçı kaybeden hesabı öder.'));
-    pb.append(slip);
-  }else{
-    const pb=$('pbLedger');pb.replaceChildren();
-    const by=new Map();
-    for(const e of ledger){const n=e.payerName||'Oyuncu';by.set(n,(by.get(n)||0)+e.total);}
-    if(by.size){
-      const sums=el('div','sums');
-      for(const [n,t] of [...by.entries()].sort((a,b)=>b[1]-a[1])){const c=el('div');c.append(el('small','',`${n} ödedi`),el('b','',money(t)));sums.append(c);}
-      pb.append(sums);
-    }
-    if(!uid)pb.append(el('p','empty','Misafir olarak oynadığın için hesap defteri kaydedilmiyor.'));
-    if(!ledger.length)pb.append(el('p','empty','Henüz ödenmiş bir hesap yok. Maç bitince kaybeden öder ve buraya yazılır.'));
-    for(const e of ledger){
-      const row=el('div','led');const t=el('div','t');
-      t.append(el('span','',`${e.payerName} ödedi`),el('b','',money(e.total)));
-      row.append(t);
-      const dt=new Date(e.at);
-      row.append(el('small','',`${dt.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})} · ${e.payerName} – ${e.oppName}${e.score?' · '+e.score:''}`));
-      row.append(el('small','',e.items.map(([n,q])=>`${q} ${n}`).join(', ')));
-      pb.append(row);
-    }
-  }
-}
-function openSheet(tab){sheetTab=tab||'menu';$('sheet').hidden=false;renderSheet();if(toastLater){toast(toastLater);toastLater='';}$('sheetClose').focus();}
-function closeSheet(){$('sheet').hidden=true;$('garsonBtn').focus();scheduleAutoRoll();}
-$('garsonBtn').onclick=()=>openSheet(tabCount()?'menu':'menu');
-$('sheetClose').onclick=closeSheet;$('sheetBg').onclick=closeSheet;
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('sheet').hidden)closeSheet();});
-document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{sheetTab=b.dataset.tab;renderSheet();});
 let loadedAt=0;
 function progressedSinceLoad(){return S.phase!=='setup';}
-function setGuest(){$('who').textContent='Misafir';$('whoSub').textContent='claude.ai ile giriş yapınca skorların saklanır';}
+function setGuest(){$('who').textContent='Misafir';$('whoSub').textContent='Misafir olarak oynuyorsun';}
 
+garsonInit('tavla');
 render();
 initAccount();
 </script>
