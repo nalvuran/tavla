@@ -61,5 +61,11 @@ Sol üstteki hesap kutusu Google ile giriş düğmesidir (Firebase Authenticatio
 - Sayfa yenilenirse masaya geri dönülür. Altı saat dokunulmayan masa kapanmış sayılır. Katlama zarı çevrimiçinde kapalı.
 - Firestore kuralları `firestore.rules` dosyasında; Firebase konsolunda Firestore → Rules'a yapıştırılıp yayınlanmalı.
 
+## Yönetim paneli (`admin.html`)
+
+- Üyeler (isim, e-posta, katılma, son görülme, kese), oyun sayaçları ve çevrimiçi masalar. Hesap menüsünde yalnız yöneticiye "Yönetim paneli" bağlantısı çıkar.
+- Bütün üyeleri okuma izni Firestore kurallarındaki `isAdmin()` ile yalnız yöneticinin hesap kimliğine verilir. Kimlik koda yazılmaz; panel ilk açılışta kimliğinle doldurulmuş kuralları gösterir.
+- Oyun sayaçları (`users/{uid}.stats`) giriş yapmış oyuncular için tutulur: tavla ve damada her oyun, okeyde her el.
+
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.

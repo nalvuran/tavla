@@ -62,6 +62,7 @@
 .hsheet p{margin:0;color:var(--muted);font-size:14px}
 .hsheet .row{display:flex;gap:8px}
 .hsheet .row button{flex:1;font:inherit;font-weight:600;font-size:15px;border-radius:10px;padding:12px 8px;cursor:pointer;border:1px solid var(--line);background:var(--room-2);color:var(--ink)}
+.hsheet .adm{display:block;text-align:center;font-weight:600;font-size:15px;color:var(--brass);border:1px solid var(--brass);border-radius:10px;padding:11px 8px;text-decoration:none}
 .hsheet .row button.pri{background:var(--brass);border-color:var(--brass);color:var(--brass-ink)}`;
     document.head.appendChild(st);
   }
@@ -108,7 +109,7 @@
     let m=$('hsheet');
     if(!m){
       m=document.createElement('div');m.id='hsheet';m.className='hsheet';m.hidden=true;
-      m.innerHTML='<div class="bg"></div><div class="pn" role="dialog" aria-modal="true" aria-label="Hesap"><div class="me"><img alt=""><div><b></b><small></small></div></div><p>Kurabiye kesen ve hesap defterin bu hesaba kayıtlı. Başka telefonda aynı Google hesabıyla girersen hepsi gelir.</p><div class="row"><button type="button" class="out">Çıkış yap</button><button type="button" class="pri close">Kapat</button></div></div>';
+      m.innerHTML='<div class="bg"></div><div class="pn" role="dialog" aria-modal="true" aria-label="Hesap"><div class="me"><img alt=""><div><b></b><small></small></div></div><p>Kurabiye kesen ve hesap defterin bu hesaba kayıtlı. Başka telefonda aynı Google hesabıyla girersen hepsi gelir.</p><a class="adm" href="admin.html" hidden>Yönetim paneli</a><div class="row"><button type="button" class="out">Çıkış yap</button><button type="button" class="pri close">Kapat</button></div></div>';
       document.body.appendChild(m);
       const close=()=>{m.hidden=true;$('acct')&&$('acct').focus();};
       m.querySelector('.bg').onclick=close;m.querySelector('.close').onclick=close;
@@ -119,6 +120,8 @@
     m.querySelector('img').src=u.photoURL||($('avatar')&&$('avatar').src)||'';
     m.querySelector('b').textContent=u.displayName||'Hesabın';
     m.querySelector('small').textContent=u.email||'';
+    let adm=false;try{adm=localStorage.getItem('kahvehane-yonetici')===u.uid;}catch(e){}
+    m.querySelector('.adm').hidden=!adm;
     m.hidden=false;m.querySelector('.close').focus();
   }
   function onChip(e){if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ')return;e.preventDefault();if(H.user)menu();else signIn();}
@@ -130,11 +133,12 @@
       const local=typeof garsonSnapshot==='function'?garsonSnapshot():{wallet:lsGet('kahvehane-wallet',null),ledger:lsGet('kahvehane-ledger',[])};
       if(!snap.exists){
         // ilk giriş: telefondaki kese ve defter hesaba taşınır
-        await ref.set(Object.assign({name:u.displayName||'',created:Date.now(),updatedAt:Date.now()},pack(local.wallet,local.ledger)));
+        await ref.set(Object.assign(prof(u),{created:Date.now(),updatedAt:Date.now()},pack(local.wallet,local.ledger)));
         loaded=true;
         if(local.wallet&&local.wallet.started)toast(`Hoş geldin! Telefonundaki ${local.wallet.coins} kurabiye hesabına aktarıldı.`);
       }else{
-        const d=unpack(snap.data()||{});loaded=true;
+        const raw=snap.data()||{};const d=unpack(raw);loaded=true;
+        ref.set(Object.assign(prof(u),raw.created?{}:{created:Date.now()}),{merge:true}).catch(()=>{});
         let hello='';
         if(typeof garsonLoadCloud==='function')hello=garsonLoadCloud(d);
         else{if(d.wallet)lsSet('kahvehane-wallet',d.wallet);if(Array.isArray(d.ledger))lsSet('kahvehane-ledger',d.ledger);}
@@ -143,12 +147,22 @@
       chip();
     }catch(e){chip('error');toast(errText(e));}
   }
+  // Üyenin görünen bilgileri ve son görülme zamanı (yönetim paneli için)
+  function prof(u){return{name:u.displayName||'',email:u.email||'',photo:u.photoURL||'',lastSeen:Date.now()};}
+  // Biten oyunu say: Hesap.stat('tavla',{won:true,mode:'ai'})
+  H.stat=function(game,o){
+    if(!H.user||!db)return;
+    o=o||{};const inc=firebase.firestore.FieldValue.increment,st={played:inc(1)};
+    if(o.won)st.won=inc(1);
+    if(o.mode)st[o.mode]=inc(1);
+    db.collection('users').doc(H.user.uid).set({stats:{[game]:st},lastPlayed:Date.now(),lastSeen:Date.now()},{merge:true}).catch(()=>{});
+  };
   H.push=function(){
     if(!H.user||!loaded||!db||typeof garsonSnapshot!=='function')return;
     clearTimeout(pushTimer);
     pushTimer=setTimeout(async()=>{
       const s=garsonSnapshot();
-      try{await db.collection('users').doc(H.user.uid).set(Object.assign({name:H.user.displayName||'',updatedAt:Date.now()},pack(s.wallet,s.ledger)),{merge:true});}
+      try{await db.collection('users').doc(H.user.uid).set(Object.assign(prof(H.user),{updatedAt:Date.now()},pack(s.wallet,s.ledger)),{merge:true});}
       catch(e){chip('error');}
     },1200);
   };

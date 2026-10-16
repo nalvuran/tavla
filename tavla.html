@@ -812,6 +812,7 @@ function overEffects(I,quiet){
   }
   if(I.mars&&!quiet)S.msg+=' '+marsRound(1-pl);
   if(online()&&!quiet)netSettled();
+  if(!quiet&&window.Hesap&&Hesap.stat)Hesap.stat('tavla',{won:S.mode!=='pvp'&&me,mode:S.mode});
   render();save();
 }
 function inProgress(){return S.phase==='move'||S.phase==='roll';}

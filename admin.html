@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#12203a">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<title>Kahvehane Yönetim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --room:#12203a;--room-2:#1b2b4a;--ink:#eef1f6;--muted:#a3b2c9;--brass:#d6ae57;--brass-ink:#13203a;--line:#2f4670;
+  --ok:#7fd1a8;--warn:#ff9a8a;--bar:#4f86d9;--bg:#0c1729;
+  --display:"Marcellus","Palatino Linotype",Palatino,Georgia,serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:900px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px))}
+header{display:flex;align-items:center;gap:10px}
+.home,.icon{width:40px;height:40px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--room-2);border:1px solid var(--line);color:var(--ink);cursor:pointer;padding:0}
+.home svg,.icon svg{width:20px;height:20px;fill:currentColor}
+.icon:disabled{opacity:.5}
+.acct{display:flex;align-items:center;gap:7px;background:var(--room-2);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;min-width:0;margin-right:auto}
+.acct img{width:30px;height:30px;border-radius:50%;flex:none}
+.acct .who{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.acct b{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acct span{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+h1{font:400 32px var(--display);margin:18px 0 2px;letter-spacing:.03em}
+.sub{margin:0 0 16px;color:var(--muted);font-size:14px}
+.card{background:var(--room);border:1px solid var(--line);border-radius:14px;padding:14px;margin-top:12px}
+.card h2{font:400 21px var(--display);margin:0 0 10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.card h2 small{font:13px var(--body);color:var(--muted)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.kpi{background:var(--room);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi small{display:block;color:var(--muted);font-size:12.5px}
+.kpi b{display:block;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.2}
+.kpi i{font-style:normal;font-size:12px;color:var(--muted)}
+svg.chart{width:100%;height:auto;display:block}
+svg.chart text{fill:var(--muted);font:11px var(--body)}
+svg.chart .v{fill:var(--ink);font-weight:600}
+.games{display:flex;flex-direction:column;gap:12px}
+.g .top{display:flex;justify-content:space-between;gap:8px;font-weight:600}
+.g .top span{color:var(--muted);font-weight:400;font-size:13px}
+.track{height:10px;background:var(--room-2);border-radius:999px;overflow:hidden;display:flex;margin-top:5px}
+.track i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted);margin-top:4px}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;background:var(--c)}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.tools input,.tools select{font:inherit;font-size:14px;background:var(--room-2);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 10px;min-width:0}
+.tools input{flex:1}
+.tools input:focus,.tools select:focus{outline:2px solid var(--brass);outline-offset:1px}
+.mem{border-top:1px solid var(--line)}
+.mem:first-child{border-top:0}
+.mem summary{list-style:none;display:flex;gap:10px;align-items:center;padding:10px 2px;cursor:pointer}
+.mem summary::-webkit-details-marker{display:none}
+.av{width:38px;height:38px;border-radius:50%;flex:none;background:var(--room-2);display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--brass);overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.mi{min-width:0;flex:1}
+.mi b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mi small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mr{text-align:right;flex:none;font-size:12.5px;color:var(--muted)}
+.mr b{display:block;color:var(--ink);font-size:14px}
+.on{color:var(--ok)!important}
+.det{padding:0 2px 12px 50px;font-size:13.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.det b{color:var(--ink);font-weight:600}
+.det ul{margin:2px 0 0;padding-left:18px}
+.tbl{display:flex;flex-direction:column}
+.tr{display:flex;gap:10px;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
+.tr:first-child{border-top:0}
+.tr small{display:block;color:var(--muted);font-size:12.5px}
+.tag{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 8px;white-space:nowrap;align-self:center}
+.tag.play{border-color:var(--ok);color:var(--ok)}
+.tag.wait{border-color:var(--brass);color:var(--brass)}
+.empty{color:var(--muted);font-size:14px;margin:4px 0}
+.gate p{margin:0 0 10px;color:var(--muted)}
+.gate ol{margin:0 0 10px;padding-left:20px;color:var(--ink)}
+.gate textarea{width:100%;height:170px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;resize:vertical}
+.btn{font:inherit;font-weight:600;font-size:15px;border-radius:10px;padding:11px 16px;cursor:pointer;border:1px solid var(--brass);background:var(--brass);color:var(--brass-ink)}
+.uid{font:13px ui-monospace,Menlo,Consolas,monospace;color:var(--brass);word-break:break-all}
+#htoast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);opacity:0;z-index:50;max-width:min(92vw,460px);background:var(--room);color:var(--ink);border:1px solid var(--brass);border-radius:12px;padding:10px 14px;font-size:14px;transition:opacity .25s,transform .25s;pointer-events:none}
+#htoast.on{opacity:1;transform:translate(-50%,0)}
+@media (max-width:520px){.det{padding-left:2px}.mr .x{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="home" href="./" aria-label="Kahvehaneye dön"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2.5 11.2l1.3 1.5L5 11.7V21h5.5v-6h3v6H19v-9.3l1.2 1 1.3-1.5z"/></svg></a>
+    <div class="acct" id="acct"><img id="avatar" alt="" referrerpolicy="no-referrer" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='14' fill='%232f4670'/%3E%3C/svg%3E"><div class="who"><b id="who">Giriş kontrol ediliyor</b><span id="whoSub">Hesap bilgisi alınıyor</span></div></div>
+    <button class="icon" id="refresh" aria-label="Yenile" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.7 6.3A8 8 0 1 0 20 12h-2a6 6 0 1 1-1.8-4.2L13 11h7V4z"/></svg></button>
+  </header>
+  <h1>Yönetim</h1>
+  <p class="sub" id="sub" aria-live="polite">Hesap bilgisi alınıyor…</p>
+
+  <section class="card gate" id="gate" hidden></section>
+
+  <main id="dash" hidden>
+    <div class="kpis" id="kpis"></div>
+    <section class="card"><h2>Yeni üyeler <small>son 30 gün</small></h2><div id="chart"></div></section>
+    <section class="card"><h2>Oyunlar <small>giriş yapmış oyuncuların bitirdiği oyunlar</small></h2><div class="games" id="games"></div></section>
+    <section class="card">
+      <h2>Üyeler <small id="memCount"></small></h2>
+      <div class="tools">
+        <input id="q" type="search" placeholder="İsim ya da e-posta ara" aria-label="Üye ara" autocomplete="off">
+        <select id="sort" aria-label="Sırala">
+          <option value="seen">Son görülen</option>
+          <option value="created">Yeni katılan</option>
+          <option value="played">En çok oynayan</option>
+          <option value="coins">En çok kurabiye</option>
+          <option value="name">İsim</option>
+        </select>
+      </div>
+      <div id="list"></div>
+    </section>
+    <section class="card"><h2>Çevrimiçi masalar <small>en son 30</small></h2><div class="tbl" id="tables"></div></section>
+  </main>
+</div>
+
+<script src="hesap.js"></script>
+<script>
+/* Yönetim paneli: üyeler (users), oyun sayaçları (users.stats) ve çevrimiçi masalar (masalar).
+   Bütün üyeleri okuma izni yalnız Firestore kurallarında adı geçen yöneticiye verilir. */
+const $=id=>document.getElementById(id);
+const GAMES=[['tavla','Tavla'],['dama','Dama'],['okey','Okey']];
+const MODES=[['ai','Bilgisayara karşı','var(--bar)'],['pvp','İki kişi aynı telefonda','var(--brass)'],['online','Çevrimiçi','var(--ok)']];
+const DAY=86400000;
+let users=[],tables=[],weekTables=0,me=null;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=n=>Number(n||0).toLocaleString('tr-TR');
+function ago(t){
+  if(!t)return '—';
+  const d=Date.now()-t;
+  if(d<2*60000)return 'az önce';
+  if(d<3600000)return `${Math.floor(d/60000)} dk önce`;
+  if(d<DAY)return `${Math.floor(d/3600000)} sa önce`;
+  if(d<2*DAY)return 'dün';
+  if(d<7*DAY)return `${Math.floor(d/DAY)} gün önce`;
+  return date(t);
+}
+const date=t=>t?new Date(t).toLocaleDateString('tr-TR',{day:'numeric',month:'short',year:new Date(t).getFullYear()!==new Date().getFullYear()?'numeric':undefined}):'—';
+const seen=u=>u.lastSeen||u.updatedAt||u.created||0;
+const played=(u,g)=>{const s=u.stats||{};return g?((s[g]&&s[g].played)||0):GAMES.reduce((t,[k])=>t+((s[k]&&s[k].played)||0),0);};
+const coins=u=>(u.wallet&&typeof u.wallet.coins==='number')?u.wallet.coins:null;
+
+function sub(t){$('sub').textContent=t;}
+function gate(html){$('dash').hidden=true;const g=$('gate');g.innerHTML=html;g.hidden=false;}
+
+Hesap.on(u=>{
+  me=u;
+  if(Hesap.offline){sub('İnternet bağlantısı yok.');gate('<p>Panel için internet gerekli. Bağlanınca sayfayı yenile.</p>');return;}
+  if(!u){sub('Giriş yapılmadı.');gate('<p>Yönetim paneli için Google ile giriş yap.</p><button class="btn" id="gin" type="button">Google ile giriş yap</button>');$('gin').onclick=()=>Hesap.signIn();return;}
+  load();
+});
+$('refresh').onclick=load;
+
+async function load(){
+  if(!me||!Hesap.db)return;
+  $('refresh').disabled=true;sub('Veriler yükleniyor…');
+  try{
+    const snap=await Hesap.db.collection('users').get();
+    users=snap.docs.map(d=>{const x=d.data()||{};x.id=d.id;try{x.ledger=x.ledgerJson?JSON.parse(x.ledgerJson):[];}catch(e){x.ledger=[];}return x;});
+  }catch(e){
+    $('refresh').disabled=false;
+    if(e&&e.code==='permission-denied'){setup();return;}
+    sub('Veriler alınamadı.');gate(`<p>Bir sorun çıktı (${esc(e&&e.code||'bilinmiyor')}). Sayfayı yenileyip yeniden dene.</p>`);return;
+  }
+  try{localStorage.setItem('kahvehane-yonetici',me.uid);}catch(e){}
+  try{
+    const ts=await Hesap.db.collection('masalar').orderBy('updatedAt','desc').limit(30).get();
+    tables=ts.docs.map(d=>Object.assign({code:d.id},d.data()));
+    const wk=await Hesap.db.collection('masalar').where('createdAt','>',Date.now()-7*DAY).get();
+    weekTables=wk.size;
+  }catch(e){tables=[];weekTables=null;}
+  $('refresh').disabled=false;
+  sub(`Son güncelleme ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}`);
+  $('gate').hidden=true;$('dash').hidden=false;
+  draw();
+}
+
+// Yönetici henüz tanımlı değil: kendi kimliğiyle doldurulmuş kuralları göster
+function setup(){
+  sub('Yönetici izni henüz yok.');
+  const rules=`rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() { return request.auth != null && request.auth.uid == '${me.uid}'; }
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isAdmin();
+    }
+    match /masalar/{code} {
+      function me() { return request.auth.uid; }
+      function isHost() { return resource.data.host.uid == me(); }
+      function isGuest() { return resource.data.guest != null && resource.data.guest.uid == me(); }
+      function joining() {
+        return resource.data.guest == null
+          && request.resource.data.guest.uid == me()
+          && request.resource.data.host.uid == resource.data.host.uid;
+      }
+      function stale() {
+        return resource.data.updatedAt < request.time.toMillis() - 21600000
+          && request.resource.data.host.uid == me();
+      }
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.host.uid == me();
+      allow update: if request.auth != null && (isHost() || isGuest() || joining() || stale());
+    }
+  }
+}`;
+  gate(`<h2>Yönetici kurulumu</h2>
+<p>Bu panel bütün üyelerin bilgilerini gösterir; Firestore yalnız kurallarda adı geçen yöneticiye izin verir. Kahvehanenin sahibiysen bir kez şunu yap:</p>
+<ol><li>Firebase konsolunda Firestore Database → Rules sekmesini aç.</li><li>Oradakini silip aşağıdaki metni yapıştır, Publish’e bas.</li><li>Bu sayfayı yenile.</li></ol>
+<p>Senin hesap kimliğin: <span class="uid">${esc(me.uid)}</span></p>
+<textarea readonly id="rules" aria-label="Firestore kuralları"></textarea>
+<p style="margin-top:10px"><button class="btn" id="copy" type="button">Kuralları kopyala</button></p>`);
+  $('rules').value=rules;
+  $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(rules);$('copy').textContent='Kopyalandı';}catch(e){$('rules').select();}};
+}
+
+function draw(){
+  const now=Date.now();
+  const act1=users.filter(u=>now-seen(u)<DAY).length,act7=users.filter(u=>now-seen(u)<7*DAY).length;
+  const new7=users.filter(u=>u.created&&now-u.created<7*DAY).length;
+  const totalPlayed=users.reduce((t,u)=>t+played(u),0);
+  const cs=users.map(coins).filter(c=>c!=null),coinSum=cs.reduce((a,b)=>a+b,0);
+  const live=tables.filter(t=>t.status==='playing'&&now-(t.updatedAt||0)<60000).length;
+  const K=[
+    ['Üye',fmt(users.length),new7?`bu hafta +${new7}`:'bu hafta yeni yok'],
+    ['Son 24 saatte',fmt(act1),'giren üye'],
+    ['Son 7 günde',fmt(act7),'giren üye'],
+    ['Biten oyun',fmt(totalPlayed),'sayaç açıldığından beri'],
+    ['Çevrimiçi masa',weekTables==null?'—':fmt(weekTables),live?`şu an ${live} masa oynuyor`:'son 7 günde açılan'],
+    ['Kurabiye',fmt(coinSum),'üyelerin kesesinde']
+  ];
+  $('kpis').innerHTML=K.map(([a,b,c])=>`<div class="kpi"><small>${a}</small><b>${b}</b><i>${esc(c)}</i></div>`).join('');
+  drawChart();drawGames();drawList();drawTables();
+}
+
+function drawChart(){
+  const days=30,start=new Date();start.setHours(0,0,0,0);const t0=start.getTime()-(days-1)*DAY;
+  const counts=Array(days).fill(0);
+  for(const u of users){if(!u.created||u.created<t0)continue;const i=Math.floor((u.created-t0)/DAY);if(i>=0&&i<days)counts[i]++;}
+  const max=Math.max(1,...counts),W=600,H=150,pad=18,bw=(W-8)/days;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H+22}" role="img" aria-label="Son 30 günde günlük yeni üye sayısı">`;
+  s+=`<line x1="0" x2="${W}" y1="${H}" y2="${H}" stroke="var(--line)"/>`;
+  counts.forEach((c,i)=>{
+    const h=c?Math.max(3,(H-pad)*c/max):0,x=4+i*bw+bw*.15,w=bw*.7;
+    const d=new Date(t0+i*DAY);
+    s+=`<rect x="${x}" y="${H-h}" width="${w}" height="${h}" rx="2" fill="var(--bar)"><title>${d.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}: ${c} yeni üye</title></rect>`;
+    if(c)s+=`<text class="v" x="${x+w/2}" y="${H-h-4}" text-anchor="middle">${c}</text>`;
+    if(i%7===2||i===days-1)s+=`<text x="${x+w/2}" y="${H+16}" text-anchor="middle">${i===days-1?'bugün':d.toLocaleDateString('tr-TR',{day:'numeric',month:'short'})}</text>`;
+  });
+  s+='</svg>';
+  const total=counts.reduce((a,b)=>a+b,0);
+  $('chart').innerHTML=s+(total?'':'<p class="empty">Son 30 günde yeni üye yok.</p>');
+}
+
+function drawGames(){
+  const agg=GAMES.map(([k,n])=>{const a={k,n,played:0,won:0,ai:0,pvp:0,online:0,players:0};
+    for(const u of users){const s=u.stats&&u.stats[k];if(!s||!s.played)continue;a.players++;for(const f of ['played','won','ai','pvp','online'])a[f]+=s[f]||0;}return a;});
+  const max=Math.max(1,...agg.map(a=>a.played));
+  $('games').innerHTML=agg.map(a=>{
+    const segs=MODES.map(([m,,c])=>a[m]?`<i style="width:${100*a[m]/max}%;background:${c}" title="${a[m]}"></i>`:'').join('');
+    const leg=MODES.filter(([m])=>a[m]).map(([m,l,c])=>`<span style="--c:${c}">${l} ${fmt(a[m])}</span>`).join('');
+    const ai=a.ai?` · bilgisayara karşı kazanma %${Math.round(100*a.won/Math.max(1,a.ai))}`:'';
+    return `<div class="g"><div class="top">${a.n} ${a.k==='okey'?'<span>(el)</span>':''}<span>${fmt(a.played)} oyun · ${fmt(a.players)} oyuncu${ai}</span></div><div class="track">${segs}</div>${leg?`<div class="legend">${leg}</div>`:''}</div>`;
+  }).join('')+(agg.every(a=>!a.played)?'<p class="empty">Henüz sayılmış oyun yok. Sayaç bu sürümle başladı; giriş yapmış oyuncuların bundan sonra bitirdiği oyunlar burada görünecek.</p>':'');
+}
+
+function drawList(){
+  const q=$('q').value.trim().toLocaleLowerCase('tr'),so=$('sort').value;
+  let L=users.filter(u=>!q||(u.name||'').toLocaleLowerCase('tr').includes(q)||(u.email||'').toLocaleLowerCase('tr').includes(q));
+  const key={seen:u=>-seen(u),created:u=>-(u.created||0),played:u=>-played(u),coins:u=>-(coins(u)??-1e9)}[so];
+  L.sort(key?(a,b)=>key(a)-key(b):(a,b)=>(a.name||'').localeCompare(b.name||'','tr'));
+  $('memCount').textContent=q?`${L.length} / ${users.length}`:`${users.length} kişi`;
+  const now=Date.now();
+  $('list').innerHTML=L.map(u=>{
+    const ini=esc(((u.name||u.email||'?').trim()[0]||'?').toLocaleUpperCase('tr'));
+    const av=u.photo?`<img src="${esc(u.photo)}" alt="" referrerpolicy="no-referrer" loading="lazy">`:ini;
+    const on=now-seen(u)<5*60000;
+    const g=GAMES.map(([k,n])=>played(u,k)?`${n} ${played(u,k)}`:'').filter(Boolean).join(' · ')||'sayılmış oyun yok';
+    const st=u.stats||{};
+    const per=GAMES.filter(([k])=>st[k]&&st[k].played).map(([k,n])=>{const s=st[k];const m=MODES.filter(([x])=>s[x]).map(([x,l])=>`${l.toLocaleLowerCase('tr')} ${s[x]}`).join(', ');return `<div><b>${n}:</b> ${s.played} oyun${s.won?`, ${s.won} galibiyet`:''}${m?` (${m})`:''}</div>`;}).join('');
+    const led=(u.ledger||[]).slice(0,5).map(e=>`<li>${date(e.at)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey'}[e.game]||e.game||'')} · ${esc(e.type==='ocak'?'Ocak ısmarladı':e.type==='mars'?`${e.payerName} mars çayı`:`${e.payerName} ödedi`)} ${e.total||0} kurabiye</li>`).join('');
+    const c=coins(u);
+    return `<details class="mem"><summary><div class="av">${av}</div><div class="mi"><b>${esc(u.name||'İsimsiz')}</b><small>${esc(u.email||'e-posta henüz kaydedilmedi')}</small><small>${esc(g)}</small></div><div class="mr"><b class="${on?'on':''}">${on?'çevrimiçi':esc(ago(seen(u)))}</b><span class="x">${c==null?'':`${fmt(c)} kurabiye`}</span></div></summary>
+<div class="det"><div><b>Katıldı:</b> ${esc(date(u.created))} · <b>Son görülme:</b> ${esc(ago(seen(u)))}${u.lastPlayed?` · <b>Son oyun:</b> ${esc(ago(u.lastPlayed))}`:''}</div><div><b>Kese:</b> ${c==null?'—':c<0?`${fmt(-c)} kurabiye veresiye`:`${fmt(c)} kurabiye`}</div>${per}${led?`<div><b>Son hesaplar</b><ul>${led}</ul></div>`:''}</div></details>`;
+  }).join('')||'<p class="empty">Eşleşen üye yok.</p>';
+}
+
+function drawTables(){
+  const now=Date.now(),first=n=>((n||'').trim().split(/\s+/)[0])||'';
+  $('tables').innerHTML=tables.map(t=>{
+    const live=t.status==='playing'&&now-(t.updatedAt||0)<60000;
+    const tag=t.status==='left'?'<span class="tag">kapandı</span>':t.status==='waiting'?'<span class="tag wait">bekliyor</span>':live?'<span class="tag play">oynanıyor</span>':'<span class="tag">sessiz</span>';
+    const who=[t.host&&first(t.host.name),t.guest&&first(t.guest.name)].filter(Boolean).join(' – ')||'—';
+    return `<div class="tr"><div>Masa ${esc(t.code)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey'}[t.game]||t.game)}<small>${esc(who)} · ${esc(ago(t.updatedAt))}</small></div>${tag}</div>`;
+  }).join('')||'<p class="empty">Henüz çevrimiçi masa açılmadı.</p>';
+}
+$('q').addEventListener('input',drawList);
+$('sort').addEventListener('change',drawList);
+</script>
+</body>
+</html>

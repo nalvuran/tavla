@@ -664,6 +664,7 @@ function showGost(s){
   if(S.match.pts.some(p=>p<=0)){endMatchCheck();}
 }
 function endHand(w,kind,okeyOut,hand,lastTile){
+  if(window.Hesap&&Hesap.stat)Hesap.stat('okey',{won:w===0,mode:'ai'});
   S.busy=true;const m=S.match;
   let pen=0,text;
   if(w<0){text='Deste bitti, el berabere.';}

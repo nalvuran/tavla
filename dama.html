@@ -599,6 +599,7 @@ function undo(){
   startTurn();
 }
 function gameOver(pl,why){
+  if(window.Hesap&&Hesap.stat)Hesap.stat('dama',{won:S.mode==='ai'&&pl===W,mode:S.mode});
   S.phase='over';S.winner=pl;S.why=why;S.busy=false;S.sel=null;S.part=null;S.work=null;
   const m=S.match;
   const WHY={nopieces:'Rakibin taşı kalmadı.',blocked:'Rakibin oynayacak hamlesi kalmadı.',resign:'Pes edildi.',kings:'İki tek dama kaldı.',idle:'50 hamle boyunca yeme ve ilerleme olmadı.'};

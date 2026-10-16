@@ -1,9 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Her oyuncu yalnız kendi kesesini ve hesap defterini okur, yazar
+    // Yönetici: admin.html'i açınca kendi kimliğiyle doldurulmuş hali gösterilir
+    function isAdmin() { return request.auth != null && request.auth.uid == 'YONETICI_UID'; }
+    // Her oyuncu yalnız kendi kesesini ve hesap defterini okur, yazar; yönetici hepsini okur
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if isAdmin();
     }
     // Çevrimiçi masalar: masa numarasını bilen giriş yapmış oyuncu görebilir;
     // yalnız masadaki iki kişi yazabilir, boş sandalyeye bir kişi oturabilir
