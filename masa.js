@@ -170,6 +170,9 @@
     if(location.hash)history.replaceState(null,'',location.pathname+location.search);
     if(hooks.onAttach)hooks.onAttach(side,code);
     let wasWaiting=false;
+    beat();peer={val:null,at:Date.now(),away:false};
+    hbTimer=setInterval(()=>{if(!document.hidden)beat();},HB);
+    chkTimer=setInterval(checkPeer,3000);
     unsub=ref(code).onSnapshot(snap=>{
       if(M.code!==code)return;
       if(!snap.exists){say('Masa kapandı.');const h=hooks.onGone;detach();if(h)h();return;}
@@ -178,11 +181,13 @@
         if(d.status==='waiting')wasWaiting=true;
         else if(wasWaiting&&d.guest){wasWaiting=false;if(sheetMode==='wait')close();say(`${first(d.guest.name)||'Arkadaşın'} masaya oturdu.`);}
       }
+      watchPeer(d);
       if(hooks.onDoc)hooks.onDoc(d);
     },e=>{if(M.code===code)say('Masayla bağlantı koptu. Sayfayı yenileyince geri döner.');});
   }
   function detach(keep){
     if(unsub){try{unsub();}catch(e){}unsub=null;}
+    clearInterval(hbTimer);clearInterval(chkTimer);hbTimer=chkTimer=null;peer={val:null,at:0,away:false};
     M.code=null;M.side=null;M.doc=null;
     if(!keep)lsSet(KEY(),null);
   }
@@ -202,6 +207,31 @@
     const code=M.code,side=M.side;detach();
     ref(code).update({status:'left',leftBy:side,updatedAt:Date.now()}).catch(()=>{});
   };
+  /* ----- Masada mı? -----
+     Her telefon masada olduğunu HB aralıkla "seen" alanına yazar. Sayfa kapanırken 0 yazar.
+     Saatler telefondan telefona farklı olabildiği için karşı tarafın değerinin en son ne zaman
+     değiştiğine bakılır: GONE süre boyunca değişmezse ya da 0 ise oyuncu masada değil sayılır. */
+  const HB=15000,GONE=40000;
+  let hbTimer=null,chkTimer=null,peer={val:null,at:0,away:false};
+  function beat(v){
+    if(!M.code||!db())return;
+    ref(M.code).update({['seen.s'+M.side]:v===0?0:Date.now(),updatedAt:Date.now()}).catch(()=>{});
+  }
+  function watchPeer(d){
+    if(M.side==null)return;
+    const other=d['seen']&&d.seen['s'+(1-M.side)];
+    if(other!==peer.val){peer.val=other;peer.at=Date.now();}
+    checkPeer();
+  }
+  function checkPeer(){
+    const d=M.doc;if(!d||!M.code)return;
+    const seated=M.side===0?!!d.guest:true;
+    const quiet=Date.now()-peer.at,away=seated&&d.status==='playing'&&(peer.val===0?quiet>8000:quiet>GONE);
+    if(away!==peer.away){peer.away=away;if(hooks.onPresence)hooks.onPresence(!away);}
+  }
+  M.peerAway=()=>peer.away;
+  window.addEventListener('pagehide',()=>{if(M.code)beat(0);});
+  document.addEventListener('visibilitychange',()=>{if(!M.code)return;if(document.hidden)beat(0);else{beat();checkPeer();}});
   M.link=()=>M.code?link(M.code):'';
   M.first=first;
 
@@ -240,6 +270,7 @@
       if(!s.exists){lsSet(KEY(),null);return;}
       const d=s.data()||{},uid=user().uid;
       const mine=(side===0&&d.host&&d.host.uid===uid)||(side===1&&d.guest&&d.guest.uid===uid);
+      if(mine&&d.status==='left'&&d.leftBy!==side)say('Sen yokken arkadaşın masayı kapattı.');
       if(!mine||d.status==='left'||(d.updatedAt||0)<Date.now()-STALE){lsSet(KEY(),null);return;}
       attach(code,side);
       if(side===0&&d.status==='waiting')showWait();

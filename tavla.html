@@ -215,6 +215,7 @@ header .acct{margin-right:auto}
 .setup .row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .setup .row2 .btn{padding:10px 6px;font-size:13.5px}
 .status .muted{color:var(--muted)}
+.status .away{color:#ff9a8a;font-weight:600}
 .over #overLeave{pointer-events:auto;margin-top:10px;padding:8px 14px;font-size:13px}
 </style>
 
@@ -1150,7 +1151,7 @@ function render(){
   const nb=$('newBtn');
   if(online()){
     const over=S.phase==='over'&&m,starter=over&&(m.done?W:(m.lastWinner!=null?m.lastWinner:W)),mine=over&&starter===S.mySide;
-    nb.textContent=over?(m.done?'Rövanş':'Sonraki oyun'):'Masadan kalk';
+    nb.textContent=over?(m.done?'Rövanş':'Sonraki oyun'):(NET.away?'Masayı kapat':'Masadan kalk');
     nb.classList.toggle('primary',!!mine);
     nb.disabled=!!over&&!mine;
     if(over&&!mine&&S.msg.indexOf('açacak')<0)$('status').innerHTML=S.msg+` <span class="muted">${m.done?'Rövanşı':'Sonraki oyunu'} ${nameOf(starter)} açacak.</span>`;
@@ -1160,6 +1161,10 @@ function render(){
     nb.disabled=S.phase==='setup';
   }
   $('overLeave').hidden=!(online()&&S.phase==='over');
+  if(online()&&NET.away&&S.phase!=='setup'){
+    $('status').innerHTML=`<span class="away">${nameOf(1-S.mySide)} masada değil.</span> Dönmesini bekleyebilir ya da <b>Masayı kapat</b>’a basabilirsin.`;
+    if(S.phase==='over'){nb.disabled=false;nb.textContent='Masayı kapat';nb.classList.add('primary');}
+  }
 }
 
 function onTap(t){
@@ -1183,6 +1188,7 @@ $('cubeDrop').onclick=()=>answerCube('drop');
 $('undoBtn').onclick=undo;
 $('doneBtn').onclick=endTurn;
 $('newBtn').onclick=()=>{
+  if(online()&&NET.away){askLeave();return;}
   if(online()&&S.phase==='over'&&S.match&&S.match.done){startOnlineMatch(S.match);return;}
   if(S.phase==='over'&&S.match&&!S.match.done)beginGame();else requestNew();
 };
@@ -1233,14 +1239,14 @@ function syncTabs(d){
 function netAttach(side){
   S.gen++;resetBoard();hideCubeAsk();
   S.mode='online';S.mySide=side;S.flip=side===B;S.match=null;S.phase='setup';S.tab={};gOrders=[0,0];
-  Object.assign(NET,{doc:null,n:0,gameId:null,seqId:null,synced:false,started:false,queue:Promise.resolve(),leftDone:false});
+  Object.assign(NET,{doc:null,n:0,gameId:null,seqId:null,synced:false,started:false,queue:Promise.resolve(),leftDone:false,away:false});
   $('confirm').hidden=true;$('setSheet').hidden=true;
   S.msg=side===W?'Masa açıldı. Arkadaşın bekleniyor…':'Masaya oturdun. Oyun kuruluyor…';
   render();
 }
 function netDetach(){
   S.mode=(S.pendingMode&&S.pendingMode!=='online')?S.pendingMode:'ai';S.pendingMode=null;
-  S.mySide=null;S.flip=false;NET.doc=null;
+  S.mySide=null;S.flip=false;NET.doc=null;NET.away=false;
   garsonLoadTab();showSetup();renderTabSum();
 }
 function startOnlineMatch(c){
@@ -1332,6 +1338,11 @@ async function netApply(st,full){
 function askLeave(mode){
   S.pendingMode=mode||null;
   const going=S.match&&!S.match.done&&(inProgress()||S.phase==='over');
+  if(NET.away){
+    $('confirmText').textContent=`${nameOf(1-S.mySide)} masada değil. Masayı kapatırsan bu maç sayılmaz, adisyon iptal olur.`;
+    $('confirmYes').textContent='Masayı kapat';
+    $('confirm').hidden=false;$('confirmYes').focus();return;
+  }
   $('confirmText').textContent=going?'Masadan kalkarsan maçı bırakmış olursun; adisyonu sen ödersin.':'Masadan kalkılsın mı?';
   $('confirmYes').textContent='Evet, kalk';
   $('confirm').hidden=false;$('confirmYes').focus();
@@ -1340,7 +1351,8 @@ function leaveOnline(){
   $('confirm').hidden=true;$('confirmYes').textContent='Evet, yeni maç';
   let t='Masadan kalktın.';
   NET.leaving=true; // boşalan adisyon masaya yazılmasın; karşı taraf hesabı görüp deftere geçirsin
-  if(S.match&&!S.match.done){const p=payTab(meSide(),'masadan kalktı');if(p)t+=` Hesabı sen ödedin: ${money(p)}.`;}
+  if(NET.away){t=`Masayı kapattın; ${nameOf(1-S.mySide)} dönmediği için maç sayılmadı.`;S.tab={};}
+  else if(S.match&&!S.match.done){const p=payTab(meSide(),'masadan kalktı');if(p)t+=` Hesabı sen ödedin: ${money(p)}.`;}
   Masa.leave();NET.leaving=false;netDetach();pageToast(t);
 }
 function needOnlineInit(){
@@ -1350,7 +1362,14 @@ function needOnlineInit(){
     onAttach:side=>netAttach(side),
     onDoc:onMasaDoc,
     onClosed:()=>netDetach(),
-    onGone:()=>{if(online())netDetach();}
+    onGone:()=>{if(online())netDetach();},
+    onPresence:here=>{
+      if(!online())return;
+      NET.away=!here;
+      const n=nameOf(1-S.mySide);
+      pageToast(here?`${n} masaya döndü.`:`${n} masada değil. Dönmesini bekleyebilir ya da masayı kapatabilirsin.`);
+      render();
+    }
   });
 }
 
