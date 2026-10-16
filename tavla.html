@@ -343,6 +343,7 @@ header .acct{margin-right:auto}
 
 <script src="garson.js"></script>
 <script src="kurallar.js"></script>
+<script src="tavla-ag.js"></script>
 <script>
 /* ===== Kurallar ===== */
 const W=0,B=1;
@@ -597,6 +598,60 @@ function aiChoose2(s,pl,dice,level){
   return best.seq;
 }
 var USTA_K=8;
+/* ===== Öğrenen değerlendirme =====
+   tavla-ag.js: bilgisayarın kendi kendine yüz binlerce oyun oynayarak (TD öğrenmesi) eğittiği küçük
+   sinir ağı. Girdi sırası gelen oyuncunun gözünden tahta; çıktılar: kazanma, mars yapma, mars yeme olasılığı. */
+let AG=null;
+function agInit(){
+  if(AG||typeof TAVLA_AG==='undefined')return AG;
+  const d=TAVLA_AG;
+  AG={NH:d.NH,w1:Float64Array.from(d.w1),b1:Float64Array.from(d.b1),w2:Float64Array.from(d.w2),b2:Float64Array.from(d.b2),h:new Float64Array(d.NH),o:new Float64Array(3),x:new Float64Array(196)};
+  return AG;
+}
+function agOut(s,pl){ // pl sırası gelen
+  const N=AG,x=N.x,{NH,w1,b1,w2,b2,h,o}=N;
+  x.fill(0);
+  for(let i=1;i<=24;i++){const v=s.p[i];if(!v)continue;
+    const mine=(v>0)===(pl===W),n=Math.abs(v),k=pl===W?i:25-i,base=(mine?0:96)+(k-1)*4;
+    x[base]=1;if(n>=2)x[base+1]=1;if(n>=3)x[base+2]=1;if(n>3)x[base+3]=(n-3)/2;}
+  x[192]=s.bar[pl]/2;x[193]=s.bar[1-pl]/2;x[194]=s.off[pl]/15;x[195]=s.off[1-pl]/15;
+  for(let j=0;j<NH;j++)h[j]=b1[j];
+  for(let i=0;i<196;i++){const xi=x[i];if(!xi)continue;for(let j=0;j<NH;j++)h[j]+=w1[j*196+i]*xi;}
+  for(let j=0;j<NH;j++)h[j]=1/(1+Math.exp(-h[j]));
+  for(let k=0;k<3;k++){let z=b2[k];for(let j=0;j<NH;j++)z+=w2[k*NH+j]*h[j];o[k]=1/(1+Math.exp(-z));}
+  return o;
+}
+const agEq=o=>2*o[0]-1+o[1]-o[2];
+// pl hamlesini yaptıktan sonra pozisyonun pl için değeri (oyun puanı cinsinden)
+function agAfter(st,pl){if(st.off[pl]===15)return st.off[1-pl]===0?2:1;return -agEq(agOut(st,1-pl));}
+const AG_NOISE={acemi:0.2,kalfa:0};
+function aiChooseN(s,pl,dice,level){
+  if(!agInit())return aiChoose2(s,pl,dice,level);
+  const list=allSequences(s,pl,dice);
+  if(!list.length)return[];
+  const sc=list.map(o=>({o,v:agAfter(o.state,pl)})).sort((a,b)=>b.v-a.v);
+  if(level!=='usta'||sc.length===1){
+    const n=AG_NOISE[level]||0;if(!n)return sc[0].o.seq;
+    let best=sc[0].o,bs=-Infinity;
+    for(const x of sc){const v=x.v+(Math.random()-0.5)*n;if(v>bs){bs=v;best=x.o;}}
+    return best.seq;
+  }
+  // Usta: en iyi adaylarda rakibin 21 zar ihtimalini ve her birine en iyi cevabını hesaplar
+  if(sc[0].o.state.off[pl]===15)return sc[0].o.seq;
+  const opp=1-pl;let best=sc[0].o,bs=-Infinity;
+  for(const x of sc.slice(0,AG_K)){
+    let t=0;
+    for(const r of ROLLS){
+      let b=-Infinity;
+      for(const o of allSequences(x.o.state,opp,r.d)){const v=agAfter(o.state,opp);if(v>b)b=v;}
+      if(b===-Infinity)b=-agAfter(x.o.state,pl);
+      t-=r.w*b;
+    }
+    if(t>bs){bs=t;best=x.o;}
+  }
+  return best.seq;
+}
+var AG_K=8;
 </script>
 <script>
 /* ===== Oyun ===== */
@@ -762,7 +817,7 @@ async function aiPlay(g,roll){
     S.msg=`Kabul ettin. Oyun artık ×${S.cube.v}.`;render();save();await sleep(700);if(g!==S.gen)return;
   }
   if(roll){S.msg='Bilgisayar zar atıyor…';render();await sleep(550);if(g!==S.gen)return;rollDice();S.legal=null;S.sel=null;S.msg=`Bilgisayar: ${S.dice[0]} – ${S.dice[1]}`;render();await sleep(700);if(g!==S.gen)return;}
-  const seq=aiChoose2(S.s,B,S.rem.slice(),cfg.level);
+  const seq=aiChooseN(S.s,B,S.rem.slice(),cfg.level);
   if(!seq.length){S.msg='Bilgisayar oynayamadı.';render();await sleep(900);if(g!==S.gen)return;}
   for(const m of seq){const prev=S.s;S.s=apply(prev,B,m);removeDie(m.d);await animateMove(prev,B,m,S.s);if(g!==S.gen)return;
     if(S.s.off[B]===15){S.busy=false;gameOver(B);return;}
@@ -862,7 +917,7 @@ function canDouble(pl){
   return !!(m&&m.cube&&!m.crawNow&&S.cube&&S.cube.v<64&&(S.cube.owner===-1||S.cube.owner===pl));
 }
 // Sırası gelen pl'in (zar atmadan önce) kazanma olasılığı
-function winP(pl){return 1/(1+Math.exp(E2(S.s,1-pl)/CUBE_K));}
+function winP(pl){if(agInit())return agOut(S.s,pl)[0];return 1/(1+Math.exp(E2(S.s,1-pl)/CUBE_K));}
 function aiWantsDouble(){
   const m=S.match,need=m.games-m.pts[B];
   if(S.cube.v>=need)return false;           // zaten bu oyunla seti alıyor
@@ -974,7 +1029,7 @@ function renderSettings(){
   $('swAutoRoll').setAttribute('aria-checked',!!snd.autoRoll);
   $('levelRow').hidden=S.mode!=='ai';
   document.querySelectorAll('[data-level]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===cfg.level));
-  $('levelHint').textContent={acemi:'Temel kuralları bilir, arada hata yapar',kalfa:'Kapı yapar, pul kırar, açık bırakmaktan kaçınır',usta:'Her hamlede senin atabileceğin 21 zarı ve en iyi cevabını hesaplar'}[cfg.level];
+  $('levelHint').textContent={acemi:'İyi oynar ama arada kararsız kalıp hata yapar',kalfa:'Kendi kendine yüz binlerce oyun oynayarak öğrendi; her hamlede en iyisini seçer',usta:'Kalfa gibi oynar, üstüne senin atabileceğin 21 zarı ve en iyi cevabını hesaplar'}[cfg.level];
 }
 $('gearBtn').onclick=()=>{$('setSheet').hidden=false;renderSettings();$('setClose').focus();};
 const closeSet=()=>{$('setSheet').hidden=true;$('gearBtn').focus();scheduleAutoRoll();};

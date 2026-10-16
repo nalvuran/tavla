@@ -23,6 +23,9 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Pul animasyonları ve ses efektleri
 - Garson, adisyon ve hesap defteri: maçı kaybeden hesabı öder
 
+### Bilgisayarın seviyeleri
+`tavla-ag.js`, bilgisayarın kendi kendine 300 bin oyun oynayarak (TD öğrenmesi) eğittiği küçük sinir ağıdır: girdi sırası gelen oyuncunun gözünden tahta, çıktı kazanma, mars yapma ve mars yeme olasılığı. Acemi ağın değerlendirmesine gürültü katar, Kalfa en iyi hamleyi oynar, Usta en iyi 8 adayda rakibin 21 zar ihtimalini ve en iyi cevabını hesaplar. Ölçümler: Usta Kalfa'ya karşı oyunların %61'ini, Acemi Kalfa'ya karşı %39'unu alır; Kalfa eski Usta'yı %57 yener.
+
 ## Dama
 - Türk daması: taşlar ileri ve yana gider, yeme zorunlu ve en çok taş yiyen hamle oynanır
 - Yenen taş anında kalkar, dama uzun gider ve uzaktan yer, 180° dönemez
