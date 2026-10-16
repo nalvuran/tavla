@@ -26,7 +26,17 @@ const tabTotal=()=>tabKeys().reduce((t,k)=>t+MENU_BY[k.split(':')[1]].p*S.tab[k]
 const tabCount=()=>tabKeys().reduce((t,k)=>t+S.tab[k],0);
 const tabItems=()=>tabKeys().map(k=>{const [pl,id]=k.split(':');return[MENU_BY[id].n,S.tab[k],MENU_BY[id].p,Number(pl)];});
 function saveWallet(){lsSet('kahvehane-wallet',wallet);if(window.Hesap)Hesap.push();}
-function saveTab(){lsSet(GAME+'-tab',{tab:S.tab,orders:gOrders});}
+// Bu telefondaki oyuncunun tarafı: çevrimiçi masada kendi rengin, yoksa Beyaz
+function meSide(){return(S.mode==='online'&&S.mySide!=null)?S.mySide:W;}
+function saveTab(){
+  if(S.mode==='online'){if(typeof onTabChange==='function')onTabChange();return;}
+  lsSet(GAME+'-tab',{tab:S.tab,orders:gOrders});
+}
+function garsonLoadTab(){
+  const t=lsGet(GAME+'-tab',{});S.tab={};gOrders=[0,0];
+  if(t.tab)for(const [k,v] of Object.entries(t.tab))if(k.includes(':')&&MENU_BY[k.split(':')[1]]&&v>0)S.tab[k]=Math.min(99,v|0);
+  if(Array.isArray(t.orders))gOrders=[t.orders[0]|0,t.orders[1]|0];
+}
 function walletText(){return wallet.coins<0?`Veresiye ${-wallet.coins} kurabiye`:`Cebinde ${wallet.coins} kurabiye`;}
 function renderTabSum(){
   const n=tabCount();
@@ -54,7 +64,7 @@ async function saveLedger(){
 function payTab(pl,score){
   const total=tabTotal();if(!total)return 0;
   addLedger({type:'tab',total,items:tabItems(),payerName:nameOf(pl),oppName:nameOf(1-pl),score:score||''});
-  if(pl===W){wallet.coins-=total;saveWallet();}
+  if(pl===meSide()){wallet.coins-=total;saveWallet();}
   S.tab={};gOrders=[0,0];saveTab();renderSheet();renderTabSum();
   return total;
 }
@@ -72,7 +82,7 @@ function settleMatch(champ,score){
   }
   const loser=1-champ,total=payTab(loser,score);
   if(!total)return null;
-  const me=S.mode==='ai'&&loser===W;
+  const me=S.mode!=='pvp'&&loser===meSide();
   return{who:loser,total,text:me?`Hesabı sen ödedin: ${money(total)}.`:`Hesabı ${nameOf(loser)} ödedi: ${money(total)}.`,
     short:me?`Hesabı sen ödedin: ${money(total)}`:`Hesabı ${nameOf(loser)} ödedi: ${money(total)}`};
 }
@@ -80,18 +90,19 @@ function settleMatch(champ,score){
 function marsRound(pl){
   const cost=MENU_BY.cay.p*2;
   addLedger({type:'mars',total:cost,items:[['Çay',2,MENU_BY.cay.p,pl]],payerName:nameOf(pl),oppName:nameOf(1-pl),score:''});
-  if(pl===W){wallet.coins-=cost;saveWallet();}
+  if(pl===meSide()){wallet.coins-=cost;saveWallet();}
   renderTabSum();sfxClink();
-  if(S.mode==='ai')return pl===W?`Mars yedin, masaya bir tur çay ısmarladın (${money(cost)}).`:`Bilgisayar mars yedi, masaya bir tur çay ısmarladı.`;
+  if(S.mode!=='pvp'&&pl===meSide())return `Mars yedin, masaya bir tur çay ısmarladın (${money(cost)}).`;
+  if(S.mode==='ai')return `Bilgisayar mars yedi, masaya bir tur çay ısmarladı.`;
   return `${nameOf(pl)} mars yedi, masaya bir tur çay ısmarladı (${money(cost)}).`;
 }
 function resetGameOrders(){gOrders=[0,0];saveTab();}
 function toast(t){const el=$('toast');el.textContent=t;clearTimeout(toastTimer);toastTimer=setTimeout(()=>{el.textContent='';},2600);}
 const ARRIVE=['geliyor!','hemen geliyor.','yolda.','tazesinden geliyor.'];
-const who=()=>S.mode==='ai'?W:orderFor;
+const who=()=>S.mode==='pvp'?orderFor:meSide();
 function canOrder(pl){
   if(wallet.coins<=-DEBT_LIMIT){toast(`Veresiye defterin doldu (${DEBT_LIMIT} kurabiye). Yarın ocakçının ikramıyla açılır.`);return false;}
-  if(gOrders[pl]>=ORDER_LIMIT){toast(S.mode==='ai'?`Bu oyunda en fazla ${ORDER_LIMIT} şey söyleyebilirsin.`:`${nameOf(pl)} bu oyunda ${ORDER_LIMIT} siparişini verdi.`);return false;}
+  if(gOrders[pl]>=ORDER_LIMIT){toast(S.mode!=='pvp'?`Bu oyunda en fazla ${ORDER_LIMIT} şey söyleyebilirsin.`:`${nameOf(pl)} bu oyunda ${ORDER_LIMIT} siparişini verdi.`);return false;}
   return true;
 }
 function order(id){
@@ -122,7 +133,7 @@ function renderSheet(){
       head.append(el('span','',`Kimin siparişi?`),seg);
     }
     const left=ORDER_LIMIT-gOrders[who()];
-    head.append(el('small','',S.mode==='ai'?`Bu oyunda ${left} sipariş hakkın kaldı · ${walletText()}`:`${nameOf(who())}: bu oyunda ${left} sipariş hakkı kaldı`));
+    head.append(el('small','',S.mode!=='pvp'?`Bu oyunda ${left} sipariş hakkın kaldı · ${walletText()}`:`${nameOf(who())}: bu oyunda ${left} sipariş hakkı kaldı`));
     pb.append(head);
     for(const c of MENU){
       pb.append(el('div','cat',c.cat));
@@ -146,7 +157,7 @@ function renderSheet(){
     for(const k of keys){
       const [pl,id]=k.split(':'),it=MENU_BY[id];
       const r=el('div','row');
-      r.append(el('span','',S.mode==='pvp'?`${nameOf(Number(pl))} · ${it.n}`:it.n));
+      r.append(el('span','',S.mode!=='ai'?`${nameOf(Number(pl))} · ${it.n}`:it.n));
       const q=el('span','qty');const mn=el('button','','−');mn.type='button';mn.setAttribute('aria-label',`${it.n} azalt`);mn.onclick=()=>changeQty(k,-1);
       const pls=el('button','','+');pls.type='button';pls.setAttribute('aria-label',`${it.n} artır`);pls.onclick=()=>changeQty(k,1);
       q.append(mn,el('span','',`${S.tab[k]}×`),pls);r.append(q,el('span','amt',money(it.p*S.tab[k])));slip.append(r);
@@ -213,9 +224,7 @@ function garsonInit(game){
   wallet=Object.assign({coins:WELCOME,daily:'',started:false},lsGet('kahvehane-wallet',{}));
   const hello=garsonDaily();
   // adisyon ve defter
-  const t=lsGet(game+'-tab',{});S.tab={};
-  if(t.tab)for(const [k,v] of Object.entries(t.tab))if(k.includes(':')&&MENU_BY[k.split(':')[1]]&&v>0)S.tab[k]=Math.min(99,v|0);
-  if(Array.isArray(t.orders))gOrders=[t.orders[0]|0,t.orders[1]|0];
+  garsonLoadTab();
   const lg=lsGet('kahvehane-ledger',[]);if(Array.isArray(lg))ledger=lg.filter(e=>e&&e.type);
   $('garsonBtn').onclick=()=>openSheet('menu');
   $('sheetClose').onclick=closeSheet;$('sheetBg').onclick=closeSheet;

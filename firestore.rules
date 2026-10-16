@@ -1,9 +1,28 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Herkes yalnızca kendi hesap belgesini okuyup yazabilir
+    // Her oyuncu yalnız kendi kesesini ve hesap defterini okur, yazar
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+    // Çevrimiçi masalar: masa numarasını bilen giriş yapmış oyuncu görebilir;
+    // yalnız masadaki iki kişi yazabilir, boş sandalyeye bir kişi oturabilir
+    match /masalar/{code} {
+      function me() { return request.auth.uid; }
+      function isHost() { return resource.data.host.uid == me(); }
+      function isGuest() { return resource.data.guest != null && resource.data.guest.uid == me(); }
+      function joining() {
+        return resource.data.guest == null
+          && request.resource.data.guest.uid == me()
+          && request.resource.data.host.uid == resource.data.host.uid;
+      }
+      function stale() {
+        return resource.data.updatedAt < request.time.toMillis() - 21600000
+          && request.resource.data.host.uid == me();
+      }
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.resource.data.host.uid == me();
+      allow update: if request.auth != null && (isHost() || isGuest() || joining() || stale());
     }
   }
 }

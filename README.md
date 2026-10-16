@@ -53,5 +53,13 @@ Her masanın sağ üst köşesindeki **i** düğmesi o oyunun kurallarını aça
 ## Hesap (`hesap.js`)
 Sol üstteki hesap kutusu Google ile giriş düğmesidir (Firebase Authentication). Giriş yapınca kurabiye kesesi ve hesap defteri Firestore'da `users/{uid}` belgesinde saklanır; ilk girişte telefondaki kese hesaba taşınır. Güvenlik kuralları `firestore.rules` dosyasında. Giriş isteğe bağlıdır; internet yoksa oyunlar misafir olarak çalışır.
 
+## Çevrimiçi masa (`masa.js`)
+
+- Tavlada **Arkadaşını davet et** dört haneli bir masa açar (`masalar/{numara}` belgesi). Arkadaş `tavla.html#masa-1234` linkini açar ya da **Kodla otur**a numarayı yazar. İki taraf da Google ile giriş yapmış olmalı.
+- Masayı açan Beyaz, oturan Siyah oynar; misafirin ekranında tahta ters döner. Sırası gelen oyuncu durumu yazar (zar, turdaki hamleler, oyun sonu); öbür telefon hamleleri canlandırarak uygular.
+- Adisyon her tarafın kendi siparişleriyle `tabs` alanında eşitlenir. Maç bitince iki telefon aynı adisyonu kapatır; kaybeden kendi kesesinden öder. Bitmeden kalkan öder.
+- Sayfa yenilenirse masaya geri dönülür. Altı saat dokunulmayan masa kapanmış sayılır. Katlama zarı çevrimiçinde kapalı.
+- Firestore kuralları `firestore.rules` dosyasında; Firebase konsolunda Firestore → Rules'a yapıştırılıp yayınlanmalı.
+
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.
