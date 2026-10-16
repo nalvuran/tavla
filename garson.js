@@ -25,7 +25,7 @@ const tabKeys=()=>Object.keys(S.tab).filter(k=>S.tab[k]>0&&MENU_BY[k.split(':')[
 const tabTotal=()=>tabKeys().reduce((t,k)=>t+MENU_BY[k.split(':')[1]].p*S.tab[k],0);
 const tabCount=()=>tabKeys().reduce((t,k)=>t+S.tab[k],0);
 const tabItems=()=>tabKeys().map(k=>{const [pl,id]=k.split(':');return[MENU_BY[id].n,S.tab[k],MENU_BY[id].p,Number(pl)];});
-function saveWallet(){lsSet('kahvehane-wallet',wallet);}
+function saveWallet(){lsSet('kahvehane-wallet',wallet);if(window.Hesap)Hesap.push();}
 function saveTab(){lsSet(GAME+'-tab',{tab:S.tab,orders:gOrders});}
 function walletText(){return wallet.coins<0?`Veresiye ${-wallet.coins} kurabiye`:`Cebinde ${wallet.coins} kurabiye`;}
 function renderTabSum(){
@@ -43,7 +43,7 @@ function addLedger(e){
   saveLedger();
 }
 async function saveLedger(){
-  lsSet('kahvehane-ledger',ledger);
+  lsSet('kahvehane-ledger',ledger);if(window.Hesap)Hesap.push();
   if(!ledgerRef||(typeof readOnly!=='undefined'&&readOnly))return;
   if(ledgerSaving){ledgerAgain=true;return;}
   ledgerSaving=true;
@@ -182,6 +182,24 @@ function renderSheet(){
 }
 function openSheet(tab){sheetTab=tab||'menu';$('sheet').hidden=false;renderSheet();if(toastLater){toast(toastLater);toastLater='';}$('sheetClose').focus();}
 function closeSheet(){$('sheet').hidden=true;$('garsonBtn').focus();if(typeof scheduleAutoRoll==='function')scheduleAutoRoll();}
+// İlk açılış ve günlük ikram; verilen ikramın mesajını döndürür
+function garsonDaily(){
+  let hello='';
+  if(!wallet.started){wallet.started=true;wallet.coins=WELCOME;wallet.daily=today();hello=`Kahvehaneye hoş geldin! Ocakçı ${WELCOME} kurabiye ikram etti.`;}
+  else if(wallet.daily!==today()){const was=wallet.coins;wallet.coins+=DAILY;wallet.daily=today();hello=was<0?`Günaydın! Ocakçının ${DAILY} kurabiyesi veresiyenden düştü.`:`Günaydın! Ocakçı günlük ${DAILY} kurabiyeni ikram etti.`;}
+  saveWallet();
+  return hello;
+}
+// Hesap: buluttan gelen kese ve defter
+function garsonSnapshot(){return{wallet,ledger};}
+function garsonLoadCloud(d){
+  if(d.wallet&&typeof d.wallet.coins==='number')wallet=Object.assign({coins:WELCOME,daily:'',started:true},d.wallet);
+  if(Array.isArray(d.ledger)){const seen=new Set(d.ledger.map(e=>e.at));ledger=d.ledger.concat(ledger.filter(e=>e&&e.type&&!seen.has(e.at))).sort((a,b)=>b.at-a.at).slice(0,200);}
+  lsSet('kahvehane-wallet',wallet);lsSet('kahvehane-ledger',ledger);
+  const hello=garsonDaily();
+  saveLedger();renderTabSum();renderSheet();
+  return hello;
+}
 function garsonInit(game){
   GAME=game;
   const st=document.createElement('style');
@@ -193,10 +211,7 @@ function garsonInit(game){
   document.head.appendChild(st);
   // kese
   wallet=Object.assign({coins:WELCOME,daily:'',started:false},lsGet('kahvehane-wallet',{}));
-  let hello='';
-  if(!wallet.started){wallet.started=true;wallet.coins=WELCOME;wallet.daily=today();hello=`Kahvehaneye hoş geldin! Ocakçı ${WELCOME} kurabiye ikram etti.`;}
-  else if(wallet.daily!==today()){const was=wallet.coins;wallet.coins+=DAILY;wallet.daily=today();hello=was<0?`Günaydın! Ocakçının ${DAILY} kurabiyesi veresiyenden düştü.`:`Günaydın! Ocakçı günlük ${DAILY} kurabiyeni ikram etti.`;}
-  saveWallet();
+  const hello=garsonDaily();
   // adisyon ve defter
   const t=lsGet(game+'-tab',{});S.tab={};
   if(t.tab)for(const [k,v] of Object.entries(t.tab))if(k.includes(':')&&MENU_BY[k.split(':')[1]]&&v>0)S.tab[k]=Math.min(99,v|0);

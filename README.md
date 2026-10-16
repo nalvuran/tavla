@@ -50,5 +50,8 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 ## Kurallar (`kurallar.js`)
 Her masanın sağ üst köşesindeki **i** düğmesi o oyunun kurallarını açar; tavla ve dama sayfalarında üst çubukta da var. Açılmamış masalarda kahvehanelerde en yaygın oynanan kurallar yazılı.
 
+## Hesap (`hesap.js`)
+Sol üstteki hesap kutusu Google ile giriş düğmesidir (Firebase Authentication). Giriş yapınca kurabiye kesesi ve hesap defteri Firestore'da `users/{uid}` belgesinde saklanır; ilk girişte telefondaki kese hesaba taşınır. Güvenlik kuralları `firestore.rules` dosyasında. Giriş isteğe bağlıdır; internet yoksa oyunlar misafir olarak çalışır.
+
 ## Çalıştırma
 `index.html` ana sayfa, her oyun tek bir HTML dosyası. Tarayıcıda açman yeterli.
