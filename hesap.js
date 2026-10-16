@@ -16,6 +16,7 @@
   const H={user:null,ready:false};window.Hesap=H;
   let auth=null,db=null,loaded=false,pushTimer=null;
   const $=id=>document.getElementById(id);
+  const GLOGO="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2048%2048%27%3E%3Cpath%20fill%3D%27%23EA4335%27%20d%3D%27M24%209.5c3.54%200%206.71%201.22%209.21%203.6l6.85-6.85C35.9%202.38%2030.47%200%2024%200%2014.62%200%206.51%205.38%202.56%2013.22l7.98%206.19C12.43%2013.72%2017.74%209.5%2024%209.5z%27/%3E%3Cpath%20fill%3D%27%234285F4%27%20d%3D%27M46.98%2024.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58%202.96-2.26%205.48-4.78%207.18l7.73%206c4.51-4.18%207.09-10.36%207.09-17.65z%27/%3E%3Cpath%20fill%3D%27%23FBBC05%27%20d%3D%27M10.53%2028.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92%2016.46%200%2020.12%200%2024c0%203.88.92%207.54%202.56%2010.78l7.97-6.19z%27/%3E%3Cpath%20fill%3D%27%2334A853%27%20d%3D%27M24%2048c6.48%200%2011.93-2.13%2015.89-5.81l-7.73-6c-2.15%201.45-4.92%202.3-8.16%202.3-6.26%200-11.57-4.22-13.47-9.91l-7.98%206.19C6.51%2042.62%2014.62%2048%2024%2048z%27/%3E%3C/svg%3E";
   const lsGet=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||'null');return v==null?d:v;}catch(e){return d;}};
   const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
   const ERR={
@@ -43,6 +44,7 @@
     st.textContent=`#acct{cursor:pointer}
 #acct:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
 #acct.guest span{color:var(--brass)}
+#acct.guest img{background:#fff;padding:4px;box-sizing:border-box;border-radius:50%}
 #htoast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);opacity:0;z-index:50;max-width:min(92vw,460px);background:var(--room);color:var(--ink);border:1px solid var(--brass);border-radius:12px;padding:10px 14px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.4);transition:opacity .25s,transform .25s;pointer-events:none}
 #htoast.on{opacity:1;transform:translate(-50%,0)}
 .hsheet{position:fixed;inset:0;z-index:45;display:flex;align-items:flex-end;justify-content:center}
@@ -72,6 +74,7 @@
     }else{
       $('who').textContent='Misafir';
       $('whoSub').textContent=state==='offline'?'Giriş için internet gerekli':'Google ile giriş yap';
+      if($('avatar'))$('avatar').src=GLOGO;
       a.setAttribute('aria-label','Google ile giriş yap');
     }
   }
