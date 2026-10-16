@@ -25,8 +25,12 @@
     'permission-denied':'Hesap kaydı reddedildi: Firestore kuralları henüz yayınlanmamış.',
     'failed-precondition':'Firestore veritabanı henüz oluşturulmamış.',
     'not-found':'Firestore veritabanı henüz oluşturulmamış.',
+    'invalid-argument':'Hesap kaydı biçimi hatalı; sayfayı yenileyip yeniden dene.',
     'unavailable':'Hesap kaydına şu an ulaşılamıyor; oyun bu telefonda kaydetmeye devam ediyor.'
   };
+  // Firestore iç içe listeleri ve boş (undefined) alanları kabul etmez; kese ve defter metin olarak saklanır
+  const pack=(wallet,ledger)=>({wallet:wallet?JSON.parse(JSON.stringify(wallet)):null,ledgerJson:JSON.stringify(ledger||[])});
+  const unpack=d=>{let ledger=[];try{ledger=d.ledgerJson?JSON.parse(d.ledgerJson):(Array.isArray(d.ledger)?d.ledger:[]);}catch(e){}return{wallet:d.wallet||null,ledger};};
   const errText=e=>ERR[e&&e.code]||`Bir sorun çıktı (${(e&&e.code)||'bilinmiyor'}).`;
   function toast(t){
     if(typeof pageToast==='function'){pageToast(t);return;}
@@ -118,11 +122,11 @@
       const local=typeof garsonSnapshot==='function'?garsonSnapshot():{wallet:lsGet('kahvehane-wallet',null),ledger:lsGet('kahvehane-ledger',[])};
       if(!snap.exists){
         // ilk giriş: telefondaki kese ve defter hesaba taşınır
-        await ref.set({name:u.displayName||'',wallet:local.wallet||null,ledger:local.ledger||[],created:Date.now(),updatedAt:Date.now()});
+        await ref.set(Object.assign({name:u.displayName||'',created:Date.now(),updatedAt:Date.now()},pack(local.wallet,local.ledger)));
         loaded=true;
         if(local.wallet&&local.wallet.started)toast(`Hoş geldin! Telefonundaki ${local.wallet.coins} kurabiye hesabına aktarıldı.`);
       }else{
-        const d=snap.data()||{};loaded=true;
+        const d=unpack(snap.data()||{});loaded=true;
         let hello='';
         if(typeof garsonLoadCloud==='function')hello=garsonLoadCloud(d);
         else{if(d.wallet)lsSet('kahvehane-wallet',d.wallet);if(Array.isArray(d.ledger))lsSet('kahvehane-ledger',d.ledger);}
@@ -136,7 +140,7 @@
     clearTimeout(pushTimer);
     pushTimer=setTimeout(async()=>{
       const s=garsonSnapshot();
-      try{await db.collection('users').doc(H.user.uid).set({name:H.user.displayName||'',wallet:s.wallet,ledger:s.ledger,updatedAt:Date.now()},{merge:true});}
+      try{await db.collection('users').doc(H.user.uid).set(Object.assign({name:H.user.displayName||'',updatedAt:Date.now()},pack(s.wallet,s.ledger)),{merge:true});}
       catch(e){chip('error');}
     },1200);
   };

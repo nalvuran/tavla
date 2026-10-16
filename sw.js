@@ -1,6 +1,6 @@
 // Her açılışta sunucudan en yeni sürümü ister (tarayıcı önbelleğini atlar);
 // bağlantı yoksa kayıtlı kopyayı açar.
-const CACHE = 'kahvehane-v14';
+const CACHE = 'kahvehane-v15';
 self.addEventListener('install', e => { self.skipWaiting(); });
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys()
