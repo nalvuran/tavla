@@ -42,6 +42,13 @@ Ana sayfada oyuncu oynayacağı oyunu seçer:
 - Bitir: normal bitiş herkesten 2, okey atarak ya da çiftten 4 puan; gösterge 1 puan
 - Maç 10, 14 ya da 20 puandan; biri sıfırlanınca en yüksek puanlı kazanır, en düşük hesabı öder
 
+## Blackjack (`blackjack.html`)
+
+- Kasaya karşı 21: 6 deste, kasa yumuşak 17'de durur, blackjack 3'e 2, sigorta 2'ye 1. İlk iki kartla ikiye katlama, aynı değerli kartları üç kez bölme (en çok 4 el), bölmeden sonra katlama serbest, bölünen aslara tek kart. Destelerin dörtte üçü bitince yeniden karıştırılır; karıştırma kriptografik rastgele sayıyla.
+- Kurallar simülasyonla doğrulandı: temel stratejiyle 2 milyon elde oyuncunun beklenen getirisi −%0,49 (bu kurallar için bilinen değer).
+- Kurabiye yatırılmaz: her oturum 1.000 bedava masa fişiyle başlar. Hesabı isteyince kasadan öndeysen ocak adisyonu ısmarlar (bahşiş yok), gerideysen adisyonu sen ödersin.
+- Ayarlardan temel strateji ipucu açılabilir.
+
 ## Kurabiye, garson ve adisyon (`garson.js`, tüm masalarda ortak)
 - Para birimi kurabiye; gerçek parayla bağı yok. İlk açılışta 50, her gün 10 kurabiye ikram
 - Oyun başına kişi başı en fazla 3 sipariş; adisyonda kimin ne söylediği görünür

@@ -13,7 +13,7 @@ const ORDER_LIMIT=3;          // oyun başına kişi başı sipariş
 const DEBT_LIMIT=30;          // veresiye sınırı
 const DAILY=10,WELCOME=50;    // günlük ve ilk açılış ikramı
 const TIPS={acemi:0,kalfa:2,usta:5}; // bilgisayarı yenince ocak bahşişi
-const GAME_NAMES={tavla:'Tavla',dama:'Dama',okey:'Okey','101':'101',pisti:'Pişti',batak:'Batak',king:'King'};
+const GAME_NAMES={tavla:'Tavla',dama:'Dama',okey:'Okey',blackjack:'Blackjack','101':'101',pisti:'Pişti',batak:'Batak',king:'King'};
 const paidBy=n=>n==='Sen'?'Sen ödedin':`${n} ödedi`;
 let GAME='tavla',ledger=[],ledgerRef=null,ledgerSaving=false,ledgerAgain=false,toastLater='',sheetTab='menu',toastTimer=0;
 let wallet={coins:WELCOME,daily:'',started:false},gOrders=[0,0],orderFor=0;

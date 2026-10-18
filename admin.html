@@ -127,7 +127,7 @@ svg.chart .v{fill:var(--ink);font-weight:600}
 /* Yönetim paneli: üyeler (users), oyun sayaçları (users.stats) ve çevrimiçi masalar (masalar).
    Bütün üyeleri okuma izni yalnız Firestore kurallarında adı geçen yöneticiye verilir. */
 const $=id=>document.getElementById(id);
-const GAMES=[['tavla','Tavla'],['dama','Dama'],['okey','Okey']];
+const GAMES=[['tavla','Tavla'],['dama','Dama'],['okey','Okey'],['blackjack','Blackjack']];
 const MODES=[['ai','Bilgisayara karşı','var(--bar)'],['pvp','İki kişi aynı telefonda','var(--brass)'],['online','Çevrimiçi','var(--ok)']];
 const DAY=86400000;
 let users=[],tables=[],weekTables=0,me=null;
@@ -269,7 +269,7 @@ function drawGames(){
     const segs=MODES.map(([m,,c])=>a[m]?`<i style="width:${100*a[m]/max}%;background:${c}" title="${a[m]}"></i>`:'').join('');
     const leg=MODES.filter(([m])=>a[m]).map(([m,l,c])=>`<span style="--c:${c}">${l} ${fmt(a[m])}</span>`).join('');
     const ai=a.ai?` · bilgisayara karşı kazanma %${Math.round(100*a.won/Math.max(1,a.ai))}`:'';
-    return `<div class="g"><div class="top">${a.n} ${a.k==='okey'?'<span>(el)</span>':''}<span>${fmt(a.played)} oyun · ${fmt(a.players)} oyuncu${ai}</span></div><div class="track">${segs}</div>${leg?`<div class="legend">${leg}</div>`:''}</div>`;
+    return `<div class="g"><div class="top">${a.n} ${a.k==='okey'||a.k==='blackjack'?'<span>(el)</span>':''}<span>${fmt(a.played)} oyun · ${fmt(a.players)} oyuncu${ai}</span></div><div class="track">${segs}</div>${leg?`<div class="legend">${leg}</div>`:''}</div>`;
   }).join('')+(agg.every(a=>!a.played)?'<p class="empty">Henüz sayılmış oyun yok. Sayaç bu sürümle başladı; giriş yapmış oyuncuların bundan sonra bitirdiği oyunlar burada görünecek.</p>':'');
 }
 
@@ -287,7 +287,7 @@ function drawList(){
     const g=GAMES.map(([k,n])=>played(u,k)?`${n} ${played(u,k)}`:'').filter(Boolean).join(' · ')||'sayılmış oyun yok';
     const st=u.stats||{};
     const per=GAMES.filter(([k])=>st[k]&&st[k].played).map(([k,n])=>{const s=st[k];const m=MODES.filter(([x])=>s[x]).map(([x,l])=>`${l.toLocaleLowerCase('tr')} ${s[x]}`).join(', ');return `<div><b>${n}:</b> ${s.played} oyun${s.won?`, ${s.won} galibiyet`:''}${m?` (${m})`:''}</div>`;}).join('');
-    const led=(u.ledger||[]).slice(0,5).map(e=>`<li>${date(e.at)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey'}[e.game]||e.game||'')} · ${esc(e.type==='ocak'?'Ocak ısmarladı':e.type==='mars'?`${e.payerName} mars çayı`:`${e.payerName} ödedi`)} ${e.total||0} kurabiye</li>`).join('');
+    const led=(u.ledger||[]).slice(0,5).map(e=>`<li>${date(e.at)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey',blackjack:'Blackjack'}[e.game]||e.game||'')} · ${esc(e.type==='ocak'?'Ocak ısmarladı':e.type==='mars'?`${e.payerName} mars çayı`:`${e.payerName} ödedi`)} ${e.total||0} kurabiye</li>`).join('');
     const c=coins(u);
     return `<details class="mem"><summary><div class="av">${av}</div><div class="mi"><b>${esc(u.name||'İsimsiz')}</b><small>${esc(u.email||'e-posta henüz kaydedilmedi')}</small><small>${esc(g)}</small></div><div class="mr"><b class="${on?'on':''}">${on?'çevrimiçi':esc(ago(seen(u)))}</b><span class="x">${c==null?'':`${fmt(c)} kurabiye`}</span></div></summary>
 <div class="det"><div><b>Katıldı:</b> ${esc(date(u.created))} · <b>Son görülme:</b> ${esc(ago(seen(u)))}${u.lastPlayed?` · <b>Son oyun:</b> ${esc(ago(u.lastPlayed))}`:''}</div><div><b>Kese:</b> ${c==null?'—':c<0?`${fmt(-c)} kurabiye veresiye`:`${fmt(c)} kurabiye`}</div>${per}${led?`<div><b>Son hesaplar</b><ul>${led}</ul></div>`:''}</div></details>`;
@@ -300,7 +300,7 @@ function drawTables(){
     const live=t.status==='playing'&&now-(t.updatedAt||0)<60000;
     const tag=t.status==='left'?'<span class="tag">kapandı</span>':t.status==='waiting'?'<span class="tag wait">bekliyor</span>':live?'<span class="tag play">oynanıyor</span>':'<span class="tag">sessiz</span>';
     const who=[t.host&&first(t.host.name),t.guest&&first(t.guest.name)].filter(Boolean).join(' – ')||'—';
-    return `<div class="tr"><div>Masa ${esc(t.code)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey'}[t.game]||t.game)}<small>${esc(who)} · ${esc(ago(t.updatedAt))}</small></div>${tag}</div>`;
+    return `<div class="tr"><div>Masa ${esc(t.code)} · ${esc({tavla:'Tavla',dama:'Dama',okey:'Okey',blackjack:'Blackjack'}[t.game]||t.game)}<small>${esc(who)} · ${esc(ago(t.updatedAt))}</small></div>${tag}</div>`;
   }).join('')||'<p class="empty">Henüz çevrimiçi masa açılmadı.</p>';
 }
 $('q').addEventListener('input',drawList);
