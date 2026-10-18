@@ -384,7 +384,13 @@ var EW={p:0.8,q:1.5};
    sahte okey, okey taşının yerine geçer (onun renk ve sayısını taşır). */
 const RENK=['Sarı','Mavi','Siyah','Kırmızı'];
 function makeTiles(){const t=[];let id=0;for(let c=0;c<4;c++)for(let n=1;n<=13;n++)for(let k=0;k<2;k++)t.push({id:id++,c,n,fake:false});t.push({id:id++,c:-1,n:0,fake:true});t.push({id:id++,c:-1,n:0,fake:true});return t;}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+// Karıştırma: kriptografik rastgele sayıyla Fisher–Yates; 0..n-1 arası her sayı eşit olasılıklı (artık atılır)
+function randInt(n){
+  if(!(window.crypto&&crypto.getRandomValues))return Math.floor(Math.random()*n);
+  const u=new Uint32Array(1),lim=Math.floor(4294967296/n)*n;
+  for(;;){crypto.getRandomValues(u);if(u[0]<lim)return u[0]%n;}
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=randInt(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
 const okeyOf=g=>({c:g.c,n:g.n===13?1:g.n+1});
 const isWild=(t,ok)=>!t.fake&&t.c===ok.c&&t.n===ok.n;
 const valOf=(t,ok)=>t.fake?{c:ok.c,n:ok.n}:{c:t.c,n:t.n};

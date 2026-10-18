@@ -657,7 +657,16 @@ var AG_K=8;
 /* ===== Oyun ===== */
 const $=id=>document.getElementById(id);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const rnd=()=>1+Math.floor(Math.random()*6);
+// Zar: tarayıcının kriptografik rastgele sayı üreteci (crypto.getRandomValues). Bir bayttan 0–251 arası
+// alınır, 252–255 atılıp yeniden çekilir; böylece altı yüzün her biri tam 42/252 = 1/6 olasılıkla gelir.
+const rnd=(()=>{
+  const buf=new Uint8Array(16);let i=16;
+  const ok=!!(window.crypto&&crypto.getRandomValues);
+  return()=>{
+    if(!ok)return 1+Math.floor(Math.random()*6);
+    for(;;){if(i>=16){crypto.getRandomValues(buf);i=0;}const x=buf[i++];if(x<252)return 1+x%6;}
+  };
+})();
 let cfg={sets:1,games:5,level:'kalfa',cube:'off'};
 try{const c=JSON.parse(localStorage.getItem('tavla-cfg')||'null');if(c&&[1,3,5].includes(c.sets)&&[3,5,7].includes(c.games))cfg=Object.assign(cfg,c);}catch(e){}
 if(!['acemi','kalfa','usta'].includes(cfg.level))cfg.level='kalfa';
